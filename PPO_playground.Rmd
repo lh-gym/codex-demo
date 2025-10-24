@@ -1,0 +1,243 @@
+太棒了！下面给你一个**可直接运行的 R 小实验**，用**同一套模拟数据**分别拟合并对比 **模型 (5) 非约束**、**模型 (6) 统一约束（同一 f_j）**、**模型 (7) 变量特定约束（各自的 f_j）**。
+我尽量把代码写得“开箱即用 + 注释清晰”，你复制到 R 里就能跑。
+
+---
+
+## ⚙️ 需要的包
+
+```{r}
+install.packages("VGAM")   # 若未安装
+library(VGAM)
+set.seed(2025)
+```
+
+---
+
+## 1) 生成一份可控的模拟数据
+
+* 有序因变量 Y ∈ {0,1,2,3}（对应 3 个 cutpoints）
+* 自变量：age（标准化）、sex（二分类 0/1）、smoke（二分类 0/1）
+* 我们人为设置“真实”系数，让它们体现出 (7) 的三种不同模式：
+
+  * age：效应随阈值线性递增  → f_age = (0,1,2)
+  * sex：只在最后一档偏离       → f_sex = (0,0,1)
+  * smoke：从第二档起恒定偏高    → f_smoke = (0,1,1)
+
+```{r}
+n <- 2000
+K <- 3                 # cutpoints j=1,2,3；Y有4个等级(0..3)
+fj_age   <- c(0,1,2)   # 线性递增
+fj_sex   <- c(0,0,1)   # 仅最后一档偏离
+fj_smoke <- c(0,1,1)   # 后两档恒定
+
+# 自变量
+age   <- scale(rnorm(n, 50, 10))[ ,1]
+sex   <- rbinom(n, 1, 0.5)
+smoke <- rbinom(n, 1, 0.4)
+
+# “基础（平行）效应”β  & “趋势（非比例）效应”γ
+beta_age   <- 0.20;  gamma_age   <- +0.15
+beta_sex   <- 0.80;  gamma_sex   <- -0.60
+beta_smoke <- 0.70;  gamma_smoke <- -0.30
+
+# cutpoint 截距（越大越难跨过阈值）
+alpha <- c(0.5, -0.3, -1.2)
+
+# 生成累计 logit & 多项分布抽样
+lin_pred <- sapply(1:K, function(j){
+  beta_age   + gamma_age   * fj_age[j]   -> b_age_j
+  beta_sex   + gamma_sex   * fj_sex[j]   -> b_sex_j
+  beta_smoke + gamma_smoke * fj_smoke[j] -> b_smk_j
+  eta <- alpha[j] + age*b_age_j + sex*b_sex_j + smoke*b_smk_j
+  plogis(eta)  # C_j = P(Y>=j)
+})
+
+# 把累计概率转成每个等级的概率
+p0 <- 1 - lin_pred[,1]
+p1 <- lin_pred[,1] - lin_pred[,2]
+p2 <- lin_pred[,2] - lin_pred[,3]
+p3 <- lin_pred[,3]
+probs <- cbind(p0,p1,p2,p3)
+
+# 按多项分布生成 Y
+Y <- apply(probs, 1, function(p) sample(0:3, size=1, prob=p, replace=TRUE))
+
+dat <- data.frame(Y=factor(Y), age=as.numeric(age), sex=sex, smoke=smoke)
+table(dat$Y)
+```
+
+---
+
+## 2) 拟合 **模型 (5)**：非约束（每个变量×每个 cutpoint 都独立）
+
+> 在 `VGAM::vglm` 的 `cumulative()` 家族里，`parallel=FALSE` 就是不平行（非比例），即模型 (5)。
+
+```{r}
+m5 <- vglm(
+  Y ~ age + sex + smoke,
+  family = cumulative(parallel = FALSE, reverse = TRUE),  # 非比例
+  data = dat
+)
+summary(m5)
+```
+
+* 你会看到 `age:1, age:2, age:3`（等）三套系数，分别对应三个 cutpoints；
+* 这是“**最自由**”的非比例形式：每个变量在每个 cutpoint 都是独立估计。
+
+---
+
+## 3) 拟合 **模型 (6)**：统一约束（所有非比例变量共用同一 f_j）
+
+思想：令**所有“趋势项”共享同一个 f_j**（这里用线性：`fj = 0,1,2`）
+做法：把每个变量拆成“平行项 + 趋势项”，并用 `xij` 把趋势项在第 j 个 cutpoint 乘以同一个 `fj`。
+
+```{r}
+# 构造“趋势项”变量（与原变量数值相同，但会被 xij 赋予 cutpoint 权重）
+dat$age_tr   <- dat$age
+dat$sex_tr   <- dat$sex
+dat$smoke_tr <- dat$smoke
+
+fj_linear <- 0:(K-1)  # 0,1,2
+
+# 为每个趋势项构造 xij 矩阵：n 行、K 列，每列对应该 cutpoint 的乘数
+XIJ <- list(
+  "age_tr"   = matrix(rep(fj_linear, each = n), n, K),
+  "sex_tr"   = matrix(rep(fj_linear, each = n), n, K),
+  "smoke_tr" = matrix(rep(fj_linear, each = n), n, K)
+)
+
+m6 <- vglm(
+  Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
+  family = cumulative(parallel = TRUE, reverse = TRUE),   # 基项平行
+  data = dat,
+  xij = XIJ                                                 # 统一 f_j 作用在所有趋势项上
+)
+summary(m6)
+```
+
+解释：
+
+* `age, sex, smoke` = **平行部分 β**（各 cutpoint 相同）
+* `age_tr, sex_tr, smoke_tr` = **趋势部分 γ**，其对第 j 个 cutpoint 的贡献 = γ × `fj_linear[j]`
+* 因为大家都用同一个 `fj_linear`，所以“所有变量的非比例变化模式一致”——正是模型 (6) 的含义。
+
+---
+
+## 4) 拟合 **模型 (7)**：变量特定约束（各变量用各自的 f_j）
+
+思想：给每个趋势项指定**不同的 f_j 向量**，比如：
+
+* age：`(0,1,2)`（线性）
+* sex：`(0,0,1)`（仅最后一档偏离）
+* smoke：`(0,1,1)`（后两档恒定）
+
+做法：`xij` 列表里为每个趋势项传不同的矩阵即可。
+
+```{r}
+# 变量特定的 f_j
+fj_age   <- c(0,1,2)
+fj_sex   <- c(0,0,1)
+fj_smoke <- c(0,1,1)
+
+XIJ_varspec <- list(
+  "age_tr"   = matrix(rep(fj_age,   each = n), n, K),
+  "sex_tr"   = matrix(rep(fj_sex,   each = n), n, K),
+  "smoke_tr" = matrix(rep(fj_smoke, each = n), n, K)
+)
+
+m7 <- vglm(
+  Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
+  family = cumulative(parallel = TRUE, reverse = TRUE),   # 基项平行
+  data = dat,
+  xij = XIJ_varspec                                       # 变量特定的 f_j
+)
+summary(m7)
+```
+
+---
+
+## 5) 把“有效斜率”算出来，好解释
+
+> 对任一变量 X，cutpoint j 的**有效斜率** = 平行部分 β_X  +  趋势部分 γ_X × f_j
+
+下面帮你把三种模型的“有效斜率”整理成表：
+
+```{r}
+# 取系数的便捷函数
+coef_mat <- function(fit) as.matrix(coef(fit))
+
+# (5) 非约束：直接就是每个 cutpoint 的斜率
+B5 <- coef_mat(m5)  # 行：系数名（含 :1,:2,:3），列：1
+B5_age   <- B5[grep("^age",   rownames(B5)), 1]
+B5_sex   <- B5[grep("^sex",   rownames(B5)), 1]
+B5_smoke <- B5[grep("^smoke", rownames(B5)), 1]
+
+# (6) 统一约束：β 和 γ（同一 fj_linear）
+B6 <- coef_mat(m6)
+beta6_age   <- B6["age",   1];  gamma6_age   <- B6["age_tr",   1]
+beta6_sex   <- B6["sex",   1];  gamma6_sex   <- B6["sex_tr",   1]
+beta6_smoke <- B6["smoke", 1];  gamma6_smoke <- B6["smoke_tr", 1]
+eff6_age   <- beta6_age   + gamma6_age   * fj_linear
+eff6_sex   <- beta6_sex   + gamma6_sex   * fj_linear
+eff6_smoke <- beta6_smoke + gamma6_smoke * fj_linear
+
+# (7) 变量特定约束：β 和 γ（各自 fj）
+B7 <- coef_mat(m7)
+beta7_age   <- B7["age",   1];  gamma7_age   <- B7["age_tr",   1]
+beta7_sex   <- B7["sex",   1];  gamma7_sex   <- B7["sex_tr",   1]
+beta7_smoke <- B7["smoke", 1];  gamma7_smoke <- B7["smoke_tr", 1]
+eff7_age   <- beta7_age   + gamma7_age   * fj_age
+eff7_sex   <- beta7_sex   + gamma7_sex   * fj_sex
+eff7_smoke <- beta7_smoke + gamma7_smoke * fj_smoke
+
+# 汇总查看
+Eff <- data.frame(
+  cutpoint = 1:K,
+  m5_age   = B5_age,   m6_age   = eff6_age,   m7_age   = eff7_age,
+  m5_sex   = B5_sex,   m6_sex   = eff6_sex,   m7_sex   = eff7_sex,
+  m5_smoke = B5_smoke, m6_smoke = eff6_smoke, m7_smoke = eff7_smoke
+)
+round(Eff, 3)
+```
+
+你会看到：
+
+* **模型 (5)**：每列（age/sex/smoke）本身就是 3 个 cutpoints 的独立估计；
+* **模型 (6)**：三者都按**同一个**线性 `fj=0,1,2` 变化；
+* **模型 (7)**：age/sex/smoke 各按**自己的** `fj_age / fj_sex / fj_smoke` 变化（与我们设定的真值模式一致）。
+
+> 一句话记忆：
+> (5) 完全放开；(6) 大家同一套节奏；(7) 各自有各自的节奏。
+
+---
+
+## 6) 额外：快速检验“是否需要非比例”
+
+你可以先拟合 **平行（纯 PO）**，再用 LRT 与 (5)/(6)/(7) 比较：
+
+```{r}
+m_PO <- vglm(
+  Y ~ age + sex + smoke,
+  family = cumulative(parallel = TRUE, reverse = TRUE),   # 纯比例
+  data = dat
+)
+
+# 似然比比较（越大越表明改进越明显）
+anova(m_PO, m5, type="LR")
+anova(m_PO, m6, type="LR")
+anova(m_PO, m7, type="LR")
+```
+
+在这个模拟里，因为我们按 (7) 生成数据，通常 **(7) 的拟合最好**，(6) 次之，(5) 也能很好（但参数多）。
+
+---
+
+### ✅ 你学到了什么
+
+* **模型 (5)**：`parallel = FALSE`（每个变量 × 每个 cutpoint 各自一套系数）
+* **模型 (6)**：用 `xij` 给所有趋势项一个**共同**的 `fj`（如线性 0,1,2）
+* **模型 (7)**：用 `xij` 给每个趋势项**各自**的 `fj`（变量特定约束），这就是论文里 `diag(f_j)` 的落地实现
+
+---
+
+如果你愿意，我可以把这段代码再**精简成一个函数**，输入你的数据框和想要的 `f_j`，自动拟合 (5)/(6)/(7) 并输出“有效斜率表 + LRT 对比”。你要我打包一下吗？

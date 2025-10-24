@@ -1,0 +1,285 @@
+---
+title: "Untitled"
+author: "linghan"
+date: "2025-10-15"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(survey)
+dat<-read.csv("/Users/yelinghan/Desktop/data_real/CCHS_ready.csv")
+```
+factor everything
+```{r}
+des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
+for (v in names(des$variables)) {
+  x <- des$variables[[v]]
+  # 跳过 NA，再数唯一值
+  if (length(unique(na.omit(x))) > 50) {
+    message("跳过变量：", v, "（唯一值超过 50）")
+    next
+  }
+  cat("\n===== ", v, " =====\n")
+  print(svytable(as.formula(paste0("~", v)), design = des))
+}
+
+```
+
+```{r}
+threshold <- 50  # 唯一取值数阈值
+is_all_na <- function(x) all(is.na(x))
+
+make_ordered <- function(x) {
+  u <- unique(x[!is.na(x)])
+  if (length(u) == 0) return(x)  # 全NA就原样返回
+  if (is.numeric(x)) {
+    lv <- sort(u)                # 数值按大小排序
+  } else {
+    lv <- sort(as.character(u))  # 其余转字符再排序
+  }
+  factor(x, levels = lv, ordered = TRUE)
+}
+
+uniq_n <- sapply(dat, function(x) length(unique(x[!is.na(x)])))
+to_ord  <- names(uniq_n)[uniq_n > 0 & uniq_n < threshold & !sapply(dat, is_all_na)]
+
+dat[to_ord] <- lapply(dat[to_ord], make_ordered)
+
+# 查看哪些变量被转换了
+print(to_ord)
+# 检查：is.ordered(dat[[var]]) 应为 TRUE
+
+```
+
+variables select
+```{r}
+library(survey)
+options(survey.lonely.psu = "adjust")  # 兜底单PSU
+
+library(survey)
+options(survey.lonely.psu = "adjust")
+
+y  <- "HUIDCOG"
+xs <- c("DHHGAGE","DHH_SEX","EDUDH04","IN2GPER","PA2DSCR",
+        "SSADEMO","NUR_06","NUR_07","GEN_02B","GEN_01","GEN_02",
+        "DPSDSF","SLP_02","GEOGCMA2","SPAGFRE","SMKDSTY",
+        "ALCDTTM","HWTGBMI")
+
+des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
+
+form <- as.formula(paste(y, "~", paste(xs, collapse=" + ")))
+```
+
+检查
+```{r}
+## ---------------- 诊断：是谁导致 singular? ----------------
+# 前置：你已有 y, xs, des, form
+need <- c(y, xs)
+
+# 0) 列名是否都存在
+missing <- setdiff(need, names(des$variables))
+if (length(missing)) {
+  cat("\n[缺列] 不存在的变量:\n"); print(missing)
+}
+
+# 1) 用公式构造 model.frame，并只看完整样本
+mf <- model.frame(form, data = des$variables, na.action = na.pass)
+ok <- complete.cases(mf)
+df <- des$variables[ok, , drop = FALSE]
+
+cat("\n[样本] 完整样本量:", nrow(df), "\n")
+
+# 2) 找“只有一个取值/常数列”的自变量
+oneval <- xs[sapply(df[xs], function(v) length(unique(v[!is.na(v)])) <= 1)]
+if (length(oneval)) {
+  cat("\n[常数或单水平] 只有1种取值的变量:\n"); print(oneval)
+}
+
+# 3) 因子存在“未出现的空水平”（levels 有，但该批样本中没数据）
+isfac <- sapply(df[xs], is.factor)
+fac_names <- names(isfac[isfac])
+empty_levels <- lapply(fac_names, function(v){
+  lv  <- levels(df[[v]])
+  obs <- sort(unique(as.character(df[[v]])))
+  setdiff(lv, obs)
+})
+names(empty_levels) <- fac_names
+empty_levels <- empty_levels[sapply(empty_levels, length) > 0]
+if (length(empty_levels)) {
+  cat("\n[空水平] 这些因子在完整样本里有未出现的 levels:\n")
+  print(empty_levels)
+}
+
+# 4) 构造模型矩阵，检查线性相关（秩亏/线性组合）
+mm <- model.matrix(form, data = df)  # 只含 X 的哑变量展开 + 截距
+cn <- colnames(mm)
+
+# 4a) 零方差列（常数列）
+zero_var_cols <- cn[apply(mm, 2, function(z) var(z) == 0)]
+if (length(zero_var_cols)) {
+  cat("\n[零方差列] 下列列恒定:\n"); print(zero_var_cols)
+}
+
+# 4b) 用 QR 分解找“线性相关列”
+qrmm <- qr(mm)
+r <- qrmm$rank
+if (r < ncol(mm)) {
+  keep_idx <- qrmm$pivot[seq_len(r)]
+  dep_idx  <- setdiff(seq_len(ncol(mm)), keep_idx)
+  dep_cols <- cn[dep_idx]
+
+  # 将列映射回原变量（assign 属性）
+  asg <- attr(mm, "assign")
+  terms_obj <- attr(mm, "terms")
+  term_labels <- attr(terms_obj, "term.labels")
+  dep_by_var <- split(dep_cols, term_labels[asg[dep_idx]])
+
+  cat("\n[线性相关] 这些列(哑变量)是线性组合/共线的：\n")
+  print(dep_by_var)
+
+  cat("\n[提示] 上述对应的原变量(项)可能互相重叠、编码完全一致或与其他变量线性相关；",
+      "可尝试：去掉其中一个变量、合并稀疏水平、或在建模前对因子 droplevels。\n", sep = "")
+} else {
+  cat("\n[线性相关] 未检测到列线性相关（矩阵满秩）。\n")
+}
+
+```
+
+```{r}
+mf  <- model.frame(form, data = des$variables, na.action = na.pass)
+ok  <- complete.cases(mf)
+dfu <- des$variables[ok, ]
+
+# 无权计数
+print(table(dfu$HUIDCOG, useNA = "ifany"))
+
+# 加权计数
+svytable(~ HUIDCOG, subset(des, ok))
+
+```
+cog = 6 样本太少 故合并
+```{r}
+df <- des$variables
+df$HUIDCOG <- droplevels(df$HUIDCOG)
+df2 <- subset(df, HUIDCOG != tail(levels(df$HUIDCOG), 1))  # 去掉“Unable to remember”
+df2$HUIDCOG <- droplevels(df2$HUIDCOG)
+# 去掉空水平
+
+des2 <- svydesign(ids=~1, weights=~WTS_del, data=df2, nest=TRUE)
+for (v in names(des2$variables)) {
+  x <- des2$variables[[v]]
+  # 跳过 NA，再数唯一值
+  if (length(unique(na.omit(x))) > 50) {
+    message("跳过变量：", v, "（唯一值超过 50）")
+    next
+  }
+  cat("\n===== ", v, " =====\n")
+  print(svytable(as.formula(paste0("~", v)), design = des))
+}
+
+```
+
+proportional odds assumption
+
+```{r}
+## —— 与 svyolr 同步的完整案例子集 ——
+des_cc <- subset(des2, complete.cases(model.frame(form, data = des2$variables)))
+
+## —— 自动按 cutoffs (>=2, >=3, ..., >=K) 拟合一组二分类模型 ——
+y_name <- all.vars(form)[1]
+K <- nlevels(des_cc$variables[[y_name]])
+
+mods <- list()
+for (k in 2:K) {
+  # 1) 复制一个 design，并把 y_bin 写进 design$variables
+  des_tmp <- des_cc
+  des_tmp$variables$y_bin <- as.numeric(des_tmp$variables[[y_name]]) >= k
+
+  # 2) 用原来的自变量，替换响应为 y_bin
+  f_bin <- update(form, y_bin ~ .)
+
+  # 3) 拟合 survey 加权二项模型
+  mods[[paste0("Y>=", k)]] <- svyglm(f_bin, design = des_tmp, family = quasibinomial())
+}
+```
+
+
+```{r}
+summary(mods)
+# 小检查：每个模型的预测概率都在 (0,1)
+sapply(mods, function(m) range(predict(m, type = "response")))
+
+```
+
+
+```{r}
+## 查看各 cutoff 下的系数（举例：抽取某个变量）
+var_of_interest <- "GEN_01"  # 改成你想看的变量名
+do.call(rbind, lapply(names(mods), function(nm) {
+  cs <- coef(summary(mods[[nm]]))
+  if (var_of_interest %in% rownames(cs)) {
+    data.frame(cutoff = nm,
+               est = cs[var_of_interest, "Estimate"],
+               se  = cs[var_of_interest, "Std. Error"],
+               z   = cs[var_of_interest, "t value"],
+               p   = cs[var_of_interest, "Pr(>|t|)"])
+  } else data.frame(cutoff = nm, est = NA, se = NA, z = NA, p = NA)
+}))
+
+```
+
+
+
+```{r}
+des_cc <- subset(des2, complete.cases(model.frame(form, data = des2$variables)))
+
+# 例1：认知 ≥ 3
+y_bin <- as.numeric(des_cc$variables$HUIDCOG) >= 3
+fit_bin1 <- svyglm(form, design = des_cc, family = quasibinomial())
+
+# 例2：认知 ≥ 4
+y_bin2 <- as.numeric(des_cc$variables$HUIDCOG) >= 4
+fit_bin2 <- svyglm(y_bin2 ~ predictors, design = des_cc, family = quasibinomial())
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+fit2 <- svyolr(form, design = subset(des2, complete.cases(model.frame(form, data=des2$variables))))
+summary(fit2)
+
+```
+or: odd ratio
+
+summary with p value added
+```{r}
+ctable <- coef(summary(fit2))
+
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+
+## combined table
+(ctable <- cbind(ctable, "p value" = p))
+```
+
+在控制其他变量后，年龄每上升一个等级，进入更差认知等级的优势比约增加 94% =  (1-1.939)*100% 。
+
+```{r}
+co <- coef(fit2); se <- sqrt(diag(vcov(fit2))); z <- qnorm(0.975)
+
+round(cbind(OR=exp(co), `2.5%`=exp(co - z*se), `97.5%`=exp(co + z*se)), 3)
+
+```
+
+
+
+1. depression
+2. understand and run 2 tests
+3. start mixed effect
+
