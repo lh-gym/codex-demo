@@ -52,6 +52,18 @@ vglm(formula,
 - **constraints / parallel**：若需自定义某些协变量在不同 cutpoint 间是否共享系数，可使用 `parallel` 或更底层的 `constraints`。本例选择 `parallel` 语法，在逻辑上等价于提供特定的约束矩阵。
 - **x.arg / y.arg**：设为 `TRUE` 保留线性模型矩阵与响应，方便后续检查。
 
+> 补充说明：根据官方说明，`vglm()` 还能透过 `weights`、`subset`、`offset` 等参数进一步调整拟合过程，甚至允许使用 `constraints` 直接传入矩阵。若日后要适配复杂抽样设计，可将抽样权重放入 `weights`。理解这些可选参数有助于解释为何本示例只需最小化设定即可复现部分比例优势模型。
+
+为方便读者快速对照文档，下表总结了本教程真正用到的参数与设置理由：
+
+| 参数 | 本示例取值 | 与文档的对应关系 |
+|------|-------------|--------------------|
+| `formula` | `Y ~ X1 + X2` | RHS 会复制到每个线性预测子，与说明书中 “RHS 应用于每个线性预测子” 一致 |
+| `family` | `cumulative(link = "logit", parallel = TRUE ~ X2)` | 选用 `cumulative()` VGAM 家族函数，靠 `parallel` 设置部分比例约束 |
+| `data` | `ppom_data` | 使用数据框让 `vglm()` 自动检索变量，符合 `data` 参数说明 |
+| `x.arg` / `y.arg` | `TRUE` | 按文档建议保留模型矩阵与响应，方便后续 `model.matrix()`、`constraints()` 检视 |
+| `control` | `默认` | 本例无需额外调参，但若 IRLS 不收敛，可用 `vglm.control()` 微调 |
+
 了解这些参数后再进入实作，有助于把示例与官方文档对应起来。
 
 ## 2. 准备环境
@@ -166,6 +178,11 @@ ppom_fit <- vglm(
 # 输出模型摘要 -------------------------------------------------------------
 # 可以看到 X1 在三个 cutpoint 上的不同系数，而 X2 的两个系数保持相同
 summary(ppom_fit)
+
+# 通过 slotNames() 验证对象槽位 --------------------------------------------
+# 文档指出 vglm 对象会存储 coefficients、constraints、model、x 等槽位
+# 这里列出主要槽位以确认示例与说明一致
+slotNames(ppom_fit)
 
 # 透过 constraints() 查看 vglm 使用的约束矩阵 ------------------------
 # 输出结果有助于对应文档中 "constraints" 槽位的说明
