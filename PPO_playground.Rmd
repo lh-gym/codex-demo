@@ -9,17 +9,52 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # 部分比例优势模型（Partial Proportional Odds Model）完整示例
 
-本示例演示如何使用 **VGAM** 套件中的 `vglm()` 函数拟合部分比例优势模型（PPOM）。我们会依序完成以下步骤：
+本 R Markdown 根据 **VGAM** 套件对 `vglm()` 的说明，完整演示如何建立、检查并解读一个部分比例优势模型（PPOM）。流程涵盖：
 
-1. 使用 R 模拟一个有序因变量 \(Y\)（等级 1-4）与两个自变量（连续型 \(X_1\)、分类变量 \(X_2\)）。
-2. 采用 `vglm()` 拟合 PPOM。
-3. 输出模型系数摘要。
-4. 对比部分比例优势模型与传统比例优势模型，检查比例优势假设。
-5. 绘制拟合概率随 \(X_1\) 变化的曲线。
+1. **阅读 `vglm()` 核心参数含义**——结合官方文档梳理 `formula`、`family`、`data`、`constraints` 等关键参数的作用。
+2. **模拟示例数据**——构造有序响应变量 \(Y\)（等级 1–4）与两个协变量（连续变量 \(X_1\)、分类变量 \(X_2\)）。
+3. **使用 `vglm()` 拟合 PPOM**——通过 `cumulative()` 家族设置 `parallel` 约束，只放宽 \(X_1\) 的比例优势假设。
+4. **产出模型摘要与约束结构**——检视系数估计与约束矩阵，确认模型与设定一致。
+5. **检验比例优势假设**——比较部分比例与完全比例模型的适配度。
+6. **绘制拟合概率曲线**——观察 \(X_1\) 变化对各等级概率的影响。
 
-所有关键步骤都附有中文注释，方便理解。
+所有关键代码段都加入中文注释，方便对照 `vglm` 文档理解每个参数的作用。
 
-## 1. 准备环境
+## 1. 了解 vglm 的核心参数
+
+`vglm()` 的调用形式如下：
+
+```r
+vglm(formula,
+     family = ...,  # 指定 VGAM 家族函数，如 cumulative()
+     data = list(), # 数据来源
+     weights = NULL,
+     subset = NULL,
+     na.action,
+     etastart = NULL,
+     mustart = NULL,
+     coefstart = NULL,
+     control = vglm.control(...),
+     offset = NULL,
+     method = "vglm.fit",
+     model = FALSE,
+     x.arg = TRUE,
+     y.arg = TRUE,
+     constraints = NULL,
+     ...)
+```
+
+在本示例中我们重点使用：
+
+- **formula**：描述响应与协变量的关系，右侧的设计矩阵会复制到每个 cutpoint 的线性预测子。
+- **family**：选用 `cumulative(link = "logit", parallel = ...)` 构造累积对数胜算模型，借由 `parallel` 参数控制比例优势约束。
+- **data**：指定模拟得到的数据框，便于 `vglm()` 自动寻找变量。
+- **constraints / parallel**：若需自定义某些协变量在不同 cutpoint 间是否共享系数，可使用 `parallel` 或更底层的 `constraints`。本例选择 `parallel` 语法，在逻辑上等价于提供特定的约束矩阵。
+- **x.arg / y.arg**：设为 `TRUE` 保留线性模型矩阵与响应，方便后续检查。
+
+了解这些参数后再进入实作，有助于把示例与官方文档对应起来。
+
+## 2. 准备环境
 
 ```{r packages}
 # 加载所需套件 ------------------------------------------------------------
@@ -41,7 +76,7 @@ library(tidyr)
 set.seed(1234)  # 固定随机种子，保证结果可复现
 ```
 
-## 2. 模拟数据
+## 3. 模拟数据
 
 ```{r simulate-data}
 # 设定样本量 --------------------------------------------------------------
@@ -104,30 +139,40 @@ stopifnot(is.ordered(ppom_data$Y))  # 双重确认响应变量已标记为有序
 head(ppom_data)
 ```
 
-## 3. 拟合部分比例优势模型
+## 4. 拟合部分比例优势模型
 
 ```{r fit-ppom}
 # 使用 VGAM::vglm() 拟合 ---------------------------------------------------
-# cumulative(link = "logit", parallel = FALSE ~ X1)
+# cumulative(link = "logit", parallel = TRUE ~ X2)
 # 语法说明：parallel 参数可以指定哪些自变量放宽比例优势假设
 # parallel = TRUE ~ X2 表示：只有 X2 及截距被约束为比例优势，
 # 其余（X1）可在不同 cutpoint 拥有不同斜率，从而构成“部分”比例优势模型
 ppom_fit <- vglm(
   Y ~ X1 + X2,
-  family = cumulative(link = "logit", parallel = TRUE ~ X2),
-  data = ppom_data
+  family = cumulative(
+    link = "logit",
+    parallel = TRUE ~ X2,  # 根据文档：指定 X2 与截距保持平行（比例优势）
+    zero = NULL            # 与 constraints 同时使用时应设为 NULL，此处显式声明
+  ),
+  data = ppom_data,
+  x.arg = TRUE,            # 保留 LM 设计矩阵，便于与文档说明对照
+  y.arg = TRUE
 )
 ```
 
-## 4. 模型系数摘要
+## 5. 模型系数摘要与约束结构
 
 ```{r summary}
 # 输出模型摘要 -------------------------------------------------------------
 # 可以看到 X1 在三个 cutpoint 上的不同系数，而 X2 的两个系数保持相同
 summary(ppom_fit)
+
+# 透过 constraints() 查看 vglm 使用的约束矩阵 ------------------------
+# 输出结果有助于对应文档中 "constraints" 槽位的说明
+constraints(ppom_fit)
 ```
 
-## 5. 检查比例优势假设
+## 6. 检查比例优势假设
 
 ```{r test-po}
 # 通过比较：
@@ -136,15 +181,21 @@ summary(ppom_fit)
 # 使用似然比检验评估放宽假设是否显著改进拟合 -------------------------
 po_fit <- vglm(
   Y ~ X1 + X2,
-  family = cumulative(link = "logit", parallel = TRUE ~ X1 + X2),
-  data = ppom_data
+  family = cumulative(
+    link = "logit",
+    parallel = TRUE ~ X1 + X2,
+    zero = NULL
+  ),
+  data = ppom_data,
+  x.arg = TRUE,
+  y.arg = TRUE
 )
 
 # VGAM::lrtest 可直接比较两个嵌套模型 -----------------------------------
 VGAM::lrtest(po_fit, ppom_fit)
 ```
 
-## 6. 绘制拟合概率随 X1 变化的曲线
+## 7. 绘制拟合概率随 X1 变化的曲线
 
 ```{r plot, message=FALSE, warning=FALSE}
 # 为绘图生成预测数据 ------------------------------------------------------
@@ -180,7 +231,7 @@ ggplot(plot_df_long, aes(x = X1, y = 概率, color = 等级)) +
   theme_minimal()
 ```
 
-## 7. 结果解读提示
+## 8. 结果解读提示
 
 - `summary()` 输出显示 X1 在不同 cutpoint 上有不同斜率，说明不满足比例优势假设。
 - `lrtest()` 的显著性（若 p 值很小）表示部分比例模型相对于纯比例模型有显著改进。
