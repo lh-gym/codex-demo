@@ -1,243 +1,189 @@
-太棒了！下面给你一个**可直接运行的 R 小实验**，用**同一套模拟数据**分别拟合并对比 **模型 (5) 非约束**、**模型 (6) 统一约束（同一 f_j）**、**模型 (7) 变量特定约束（各自的 f_j）**。
-我尽量把代码写得“开箱即用 + 注释清晰”，你复制到 R 里就能跑。
-
+---
+title: "PPO Playground"
+output: html_document
 ---
 
-## ⚙️ 需要的包
-
-```{r}
-install.packages("VGAM")   # 若未安装
-library(VGAM)
-set.seed(2025)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
----
+# 部分比例优势模型（Partial Proportional Odds Model）完整示例
 
-## 1) 生成一份可控的模拟数据
+本示例演示如何使用 **VGAM** 套件中的 `vglm()` 函数拟合部分比例优势模型（PPOM）。我们会依序完成以下步骤：
 
-* 有序因变量 Y ∈ {0,1,2,3}（对应 3 个 cutpoints）
-* 自变量：age（标准化）、sex（二分类 0/1）、smoke（二分类 0/1）
-* 我们人为设置“真实”系数，让它们体现出 (7) 的三种不同模式：
+1. 使用 R 模拟一个有序因变量 \(Y\)（等级 1-4）与两个自变量（连续型 \(X_1\)、分类变量 \(X_2\)）。
+2. 采用 `vglm()` 拟合 PPOM。
+3. 输出模型系数摘要。
+4. 对比部分比例优势模型与传统比例优势模型，检查比例优势假设。
+5. 绘制拟合概率随 \(X_1\) 变化的曲线。
 
-  * age：效应随阈值线性递增  → f_age = (0,1,2)
-  * sex：只在最后一档偏离       → f_sex = (0,0,1)
-  * smoke：从第二档起恒定偏高    → f_smoke = (0,1,1)
+所有关键步骤都附有中文注释，方便理解。
 
-```{r}
-n <- 2000
-K <- 3                 # cutpoints j=1,2,3；Y有4个等级(0..3)
-fj_age   <- c(0,1,2)   # 线性递增
-fj_sex   <- c(0,0,1)   # 仅最后一档偏离
-fj_smoke <- c(0,1,1)   # 后两档恒定
+## 1. 准备环境
 
-# 自变量
-age   <- scale(rnorm(n, 50, 10))[ ,1]
-sex   <- rbinom(n, 1, 0.5)
-smoke <- rbinom(n, 1, 0.4)
+```{r packages}
+# 加载所需套件 ------------------------------------------------------------
+# VGAM 提供 vglm() 与 cumulative() 家族函数
+# ggplot2 & tidyr 用于数据整理与绘图
+if (!requireNamespace("VGAM", quietly = TRUE)) {
+  install.packages("VGAM")
+}
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+if (!requireNamespace("tidyr", quietly = TRUE)) {
+  install.packages("tidyr")
+}
 
-# “基础（平行）效应”β  & “趋势（非比例）效应”γ
-beta_age   <- 0.20;  gamma_age   <- +0.15
-beta_sex   <- 0.80;  gamma_sex   <- -0.60
-beta_smoke <- 0.70;  gamma_smoke <- -0.30
+library(VGAM)
+library(ggplot2)
+library(tidyr)
+set.seed(1234)  # 固定随机种子，保证结果可复现
+```
 
-# cutpoint 截距（越大越难跨过阈值）
-alpha <- c(0.5, -0.3, -1.2)
+## 2. 模拟数据
 
-# 生成累计 logit & 多项分布抽样
-lin_pred <- sapply(1:K, function(j){
-  beta_age   + gamma_age   * fj_age[j]   -> b_age_j
-  beta_sex   + gamma_sex   * fj_sex[j]   -> b_sex_j
-  beta_smoke + gamma_smoke * fj_smoke[j] -> b_smk_j
-  eta <- alpha[j] + age*b_age_j + sex*b_sex_j + smoke*b_smk_j
-  plogis(eta)  # C_j = P(Y>=j)
+```{r simulate-data}
+# 设定样本量 --------------------------------------------------------------
+n <- 600
+
+# 生成连续自变量 X1（例如标准化后的测试分数） --------------------------
+X1 <- scale(rnorm(n, mean = 0, sd = 1))[, 1]
+
+# 生成分类自变量 X2（3 个类别："A"、"B"、"C"） -------------------------
+X2 <- factor(sample(c("A", "B", "C"), size = n, replace = TRUE, prob = c(0.4, 0.35, 0.25)))
+
+# 设置真实参数 -------------------------------------------------------------
+# 截距（越大表示越容易落入较低等级），需保证递增以满足有序结构
+alpha <- c(-1.2, 0.2, 1.5)
+
+# 连续变量 X1 的系数（允许非比例，随 cutpoint 改变）
+beta_X1 <- c(0.9, 0.6, 0.3)
+
+# 分类变量 X2（基准为 "A"，假设满足比例优势，系数不随 cutpoint 变化）
+# 正系数表示相较于 A 族群，更倾向取得较高等级
+beta_X2 <- list(
+  B = 0.6,  # X2 == "B" 的常数效应
+  C = 1.0   # X2 == "C" 的常数效应
+)
+
+# 根据参数构造累计 logit --------------------------------------------------
+# 对每个 cutpoint 计算 P(Y <= k)
+eta_mat <- sapply(1:3, function(k) {
+  alpha[k] -
+    beta_X1[k] * X1 -
+    (ifelse(X2 == "B", beta_X2$B, 0) +
+       ifelse(X2 == "C", beta_X2$C, 0))  # 分类变量通过模型矩阵引入
 })
 
-# 把累计概率转成每个等级的概率
-p0 <- 1 - lin_pred[,1]
-p1 <- lin_pred[,1] - lin_pred[,2]
-p2 <- lin_pred[,2] - lin_pred[,3]
-p3 <- lin_pred[,3]
-probs <- cbind(p0,p1,p2,p3)
+cum_prob <- plogis(eta_mat)  # 累积概率矩阵（按等级递增）
 
-# 按多项分布生成 Y
-Y <- apply(probs, 1, function(p) sample(0:3, size=1, prob=p, replace=TRUE))
+# 将累计概率转换为每个等级的概率 ------------------------------------------
+prob1 <- cum_prob[, 1]
+prob2 <- cum_prob[, 2] - cum_prob[, 1]
+prob3 <- cum_prob[, 3] - cum_prob[, 2]
+prob4 <- 1 - cum_prob[, 3]
+prob_mat <- cbind(prob1, prob2, prob3, prob4)
 
-dat <- data.frame(Y=factor(Y), age=as.numeric(age), sex=sex, smoke=smoke)
-table(dat$Y)
+# 避免数值误差带来负值或总和偏离 1 -----------------------------------------
+prob_mat <- pmax(prob_mat, .Machine$double.eps)
+prob_mat <- prob_mat / rowSums(prob_mat)
+
+# 多项分布抽样得到有序响应 Y（等级 1-4） ----------------------------------
+Y <- apply(prob_mat, 1, function(p) sample(1:4, size = 1, prob = p))
+
+# 整理为数据框 -------------------------------------------------------------
+ppom_data <- data.frame(
+  Y = ordered(Y, levels = 1:4),  # 指定为有序因子，避免 vglm() 提示警告
+  X1 = as.numeric(X1),
+  X2 = X2
+)
+
+# 查看前几笔数据 ---------------------------------------------------------
+stopifnot(is.ordered(ppom_data$Y))  # 双重确认响应变量已标记为有序
+head(ppom_data)
 ```
 
----
+## 3. 拟合部分比例优势模型
 
-## 2) 拟合 **模型 (5)**：非约束（每个变量×每个 cutpoint 都独立）
-
-> 在 `VGAM::vglm` 的 `cumulative()` 家族里，`parallel=FALSE` 就是不平行（非比例），即模型 (5)。
-
-```{r}
-m5 <- vglm(
-  Y ~ age + sex + smoke,
-  family = cumulative(parallel = FALSE, reverse = TRUE),  # 非比例
-  data = dat
+```{r fit-ppom}
+# 使用 VGAM::vglm() 拟合 ---------------------------------------------------
+# cumulative(link = "logit", parallel = FALSE ~ X1)
+# 语法说明：parallel 参数可以指定哪些自变量放宽比例优势假设
+# parallel = TRUE ~ X2 表示：只有 X2 及截距被约束为比例优势，
+# 其余（X1）可在不同 cutpoint 拥有不同斜率，从而构成“部分”比例优势模型
+ppom_fit <- vglm(
+  Y ~ X1 + X2,
+  family = cumulative(link = "logit", parallel = TRUE ~ X2),
+  data = ppom_data
 )
-summary(m5)
 ```
 
-* 你会看到 `age:1, age:2, age:3`（等）三套系数，分别对应三个 cutpoints；
-* 这是“**最自由**”的非比例形式：每个变量在每个 cutpoint 都是独立估计。
+## 4. 模型系数摘要
 
----
-
-## 3) 拟合 **模型 (6)**：统一约束（所有非比例变量共用同一 f_j）
-
-思想：令**所有“趋势项”共享同一个 f_j**（这里用线性：`fj = 0,1,2`）
-做法：把每个变量拆成“平行项 + 趋势项”，并用 `xij` 把趋势项在第 j 个 cutpoint 乘以同一个 `fj`。
-
-```{r}
-# 构造“趋势项”变量（与原变量数值相同，但会被 xij 赋予 cutpoint 权重）
-dat$age_tr   <- dat$age
-dat$sex_tr   <- dat$sex
-dat$smoke_tr <- dat$smoke
-
-fj_linear <- 0:(K-1)  # 0,1,2
-
-# 为每个趋势项构造 xij 矩阵：n 行、K 列，每列对应该 cutpoint 的乘数
-XIJ <- list(
-  "age_tr"   = matrix(rep(fj_linear, each = n), n, K),
-  "sex_tr"   = matrix(rep(fj_linear, each = n), n, K),
-  "smoke_tr" = matrix(rep(fj_linear, each = n), n, K)
-)
-
-m6 <- vglm(
-  Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
-  family = cumulative(parallel = TRUE, reverse = TRUE),   # 基项平行
-  data = dat,
-  xij = XIJ                                                 # 统一 f_j 作用在所有趋势项上
-)
-summary(m6)
+```{r summary}
+# 输出模型摘要 -------------------------------------------------------------
+# 可以看到 X1 在三个 cutpoint 上的不同系数，而 X2 的两个系数保持相同
+summary(ppom_fit)
 ```
 
-解释：
+## 5. 检查比例优势假设
 
-* `age, sex, smoke` = **平行部分 β**（各 cutpoint 相同）
-* `age_tr, sex_tr, smoke_tr` = **趋势部分 γ**，其对第 j 个 cutpoint 的贡献 = γ × `fj_linear[j]`
-* 因为大家都用同一个 `fj_linear`，所以“所有变量的非比例变化模式一致”——正是模型 (6) 的含义。
-
----
-
-## 4) 拟合 **模型 (7)**：变量特定约束（各变量用各自的 f_j）
-
-思想：给每个趋势项指定**不同的 f_j 向量**，比如：
-
-* age：`(0,1,2)`（线性）
-* sex：`(0,0,1)`（仅最后一档偏离）
-* smoke：`(0,1,1)`（后两档恒定）
-
-做法：`xij` 列表里为每个趋势项传不同的矩阵即可。
-
-```{r}
-# 变量特定的 f_j
-fj_age   <- c(0,1,2)
-fj_sex   <- c(0,0,1)
-fj_smoke <- c(0,1,1)
-
-XIJ_varspec <- list(
-  "age_tr"   = matrix(rep(fj_age,   each = n), n, K),
-  "sex_tr"   = matrix(rep(fj_sex,   each = n), n, K),
-  "smoke_tr" = matrix(rep(fj_smoke, each = n), n, K)
+```{r test-po}
+# 通过比较：
+#   (1) 纯比例优势模型（所有自变量 parallel = TRUE）
+#   (2) 部分比例优势模型（只放宽 X1）
+# 使用似然比检验评估放宽假设是否显著改进拟合 -------------------------
+po_fit <- vglm(
+  Y ~ X1 + X2,
+  family = cumulative(link = "logit", parallel = TRUE ~ X1 + X2),
+  data = ppom_data
 )
 
-m7 <- vglm(
-  Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
-  family = cumulative(parallel = TRUE, reverse = TRUE),   # 基项平行
-  data = dat,
-  xij = XIJ_varspec                                       # 变量特定的 f_j
-)
-summary(m7)
+# VGAM::lrtest 可直接比较两个嵌套模型 -----------------------------------
+VGAM::lrtest(po_fit, ppom_fit)
 ```
 
----
+## 6. 绘制拟合概率随 X1 变化的曲线
 
-## 5) 把“有效斜率”算出来，好解释
-
-> 对任一变量 X，cutpoint j 的**有效斜率** = 平行部分 β_X  +  趋势部分 γ_X × f_j
-
-下面帮你把三种模型的“有效斜率”整理成表：
-
-```{r}
-# 取系数的便捷函数
-coef_mat <- function(fit) as.matrix(coef(fit))
-
-# (5) 非约束：直接就是每个 cutpoint 的斜率
-B5 <- coef_mat(m5)  # 行：系数名（含 :1,:2,:3），列：1
-B5_age   <- B5[grep("^age",   rownames(B5)), 1]
-B5_sex   <- B5[grep("^sex",   rownames(B5)), 1]
-B5_smoke <- B5[grep("^smoke", rownames(B5)), 1]
-
-# (6) 统一约束：β 和 γ（同一 fj_linear）
-B6 <- coef_mat(m6)
-beta6_age   <- B6["age",   1];  gamma6_age   <- B6["age_tr",   1]
-beta6_sex   <- B6["sex",   1];  gamma6_sex   <- B6["sex_tr",   1]
-beta6_smoke <- B6["smoke", 1];  gamma6_smoke <- B6["smoke_tr", 1]
-eff6_age   <- beta6_age   + gamma6_age   * fj_linear
-eff6_sex   <- beta6_sex   + gamma6_sex   * fj_linear
-eff6_smoke <- beta6_smoke + gamma6_smoke * fj_linear
-
-# (7) 变量特定约束：β 和 γ（各自 fj）
-B7 <- coef_mat(m7)
-beta7_age   <- B7["age",   1];  gamma7_age   <- B7["age_tr",   1]
-beta7_sex   <- B7["sex",   1];  gamma7_sex   <- B7["sex_tr",   1]
-beta7_smoke <- B7["smoke", 1];  gamma7_smoke <- B7["smoke_tr", 1]
-eff7_age   <- beta7_age   + gamma7_age   * fj_age
-eff7_sex   <- beta7_sex   + gamma7_sex   * fj_sex
-eff7_smoke <- beta7_smoke + gamma7_smoke * fj_smoke
-
-# 汇总查看
-Eff <- data.frame(
-  cutpoint = 1:K,
-  m5_age   = B5_age,   m6_age   = eff6_age,   m7_age   = eff7_age,
-  m5_sex   = B5_sex,   m6_sex   = eff6_sex,   m7_sex   = eff7_sex,
-  m5_smoke = B5_smoke, m6_smoke = eff6_smoke, m7_smoke = eff7_smoke
-)
-round(Eff, 3)
-```
-
-你会看到：
-
-* **模型 (5)**：每列（age/sex/smoke）本身就是 3 个 cutpoints 的独立估计；
-* **模型 (6)**：三者都按**同一个**线性 `fj=0,1,2` 变化；
-* **模型 (7)**：age/sex/smoke 各按**自己的** `fj_age / fj_sex / fj_smoke` 变化（与我们设定的真值模式一致）。
-
-> 一句话记忆：
-> (5) 完全放开；(6) 大家同一套节奏；(7) 各自有各自的节奏。
-
----
-
-## 6) 额外：快速检验“是否需要非比例”
-
-你可以先拟合 **平行（纯 PO）**，再用 LRT 与 (5)/(6)/(7) 比较：
-
-```{r}
-m_PO <- vglm(
-  Y ~ age + sex + smoke,
-  family = cumulative(parallel = TRUE, reverse = TRUE),   # 纯比例
-  data = dat
+```{r plot, message=FALSE, warning=FALSE}
+# 为绘图生成预测数据 ------------------------------------------------------
+# 固定 X2 = "A"，让 X1 在其范围内取 100 个等距点
+X1_seq <- seq(min(ppom_data$X1), max(ppom_data$X1), length.out = 100)
+newdata_plot <- data.frame(
+  X1 = X1_seq,
+  X2 = factor("A", levels = levels(ppom_data$X2))
 )
 
-# 似然比比较（越大越表明改进越明显）
-anova(m_PO, m5, type="LR")
-anova(m_PO, m6, type="LR")
-anova(m_PO, m7, type="LR")
+# 计算每个等级的拟合概率 ---------------------------------------------------
+pred_prob <- as.data.frame(predict(ppom_fit, newdata = newdata_plot, type = "response"))
+colnames(pred_prob) <- paste0("等级", 1:4)
+plot_df <- cbind(newdata_plot, pred_prob)
+
+# 转成长格式，以便 ggplot2 绘制 -------------------------------------------
+plot_df_long <- pivot_longer(
+  plot_df,
+  cols = startsWith("等级"),
+  names_to = "等级",
+  values_to = "概率"
+)
+
+# 绘制概率曲线 -------------------------------------------------------------
+ggplot(plot_df_long, aes(x = X1, y = 概率, color = 等级)) +
+  geom_line(size = 1) +
+  labs(
+    title = "部分比例优势模型：拟合概率随 X1 变化",
+    subtitle = "X2 固定为类别 A",
+    x = "连续自变量 X1",
+    y = "拟合概率"
+  ) +
+  theme_minimal()
 ```
 
-在这个模拟里，因为我们按 (7) 生成数据，通常 **(7) 的拟合最好**，(6) 次之，(5) 也能很好（但参数多）。
+## 7. 结果解读提示
 
----
+- `summary()` 输出显示 X1 在不同 cutpoint 上有不同斜率，说明不满足比例优势假设。
+- `lrtest()` 的显著性（若 p 值很小）表示部分比例模型相对于纯比例模型有显著改进。
+- 概率曲线可以观察到：随着 X1 增加，各等级概率的变化并非简单平移，体现了部分比例的灵活性。
 
-### ✅ 你学到了什么
-
-* **模型 (5)**：`parallel = FALSE`（每个变量 × 每个 cutpoint 各自一套系数）
-* **模型 (6)**：用 `xij` 给所有趋势项一个**共同**的 `fj`（如线性 0,1,2）
-* **模型 (7)**：用 `xij` 给每个趋势项**各自**的 `fj`（变量特定约束），这就是论文里 `diag(f_j)` 的落地实现
-
----
-
-如果你愿意，我可以把这段代码再**精简成一个函数**，输入你的数据框和想要的 `f_j`，自动拟合 (5)/(6)/(7) 并输出“有效斜率表 + LRT 对比”。你要我打包一下吗？
+> 至此，我们完成了一个包含数据模拟、模型拟合、假设检验与图形化展示的完整 Partial Proportional Odds Model 示例。
