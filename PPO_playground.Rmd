@@ -69,10 +69,12 @@ vglm(formula,
 
 ## 2. 准备环境
 
+## hahahah
 ```{r packages}
 # 加载所需套件 ------------------------------------------------------------
 # VGAM 提供 vglm() 与 cumulative() 家族函数
 # ggplot2 & tidyr 用于数据整理与绘图
+##hahaha
 if (!requireNamespace("VGAM", quietly = TRUE)) {
   install.packages("VGAM")
 }
