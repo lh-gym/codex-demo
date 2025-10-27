@@ -3,7 +3,7 @@
     "path": "~/codex-demo/PPO_playground.Rmd",
     "project_path": "PPO_playground.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "793994876",
     "contents": "",
     "dirty": false,
     "created": 1761513811965.0,
@@ -12,16 +12,16 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "227,26",
-        "scrollLine": "26",
-        "last_setup_crc32": "6afe23a424130944"
+        "cursorPosition": "74,27",
+        "scrollLine": "65",
+        "last_setup_crc32": "6afe23a4bb338d19"
     },
     "folds": "",
-    "lastKnownWriteTime": 1761580155,
+    "lastKnownWriteTime": 1761580704,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1761580155,
+    "last_content_update": 1761580704084,
     "read_only": false,
     "read_only_alternatives": []
 }
