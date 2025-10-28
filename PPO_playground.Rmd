@@ -107,16 +107,20 @@ constraint_linear <- list(
 
 m6 <- vglm(
   Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
-  family = cumulative(parallel = TRUE, reverse = TRUE),   # 基项平行
+  family = cumulative(parallel = FALSE, reverse = TRUE),   # 先放开，再用 constraints 实现平行+趋势
   data = dat,
-  constraints = constraint_linear                           # 统一 f_j 作用在所有趋势项上
+  constraints = c(constraint_linear, list(                 # 统一 f_j 作用在所有趋势项上
+    "age"   = matrix(1, nrow = K, dimnames = list(NULL, "beta_age")),
+    "sex"   = matrix(1, nrow = K, dimnames = list(NULL, "beta_sex")),
+    "smoke" = matrix(1, nrow = K, dimnames = list(NULL, "beta_smoke"))
+  ))
 )
 summary(m6)
 ```
 
 解释：
 
-* `age, sex, smoke` = **平行部分 β**（各 cutpoint 相同）
+* `age, sex, smoke` = **平行部分 β**，借助 `matrix(1, …)` 把三个 cutpoints 的系数绑定成同一个值；
 * `age_tr, sex_tr, smoke_tr` = **趋势部分 γ**，其对第 j 个 cutpoint 的贡献 = γ × `fj_linear[j]`
 * 因为大家都用同一个 `fj_linear`，所以“所有变量的非比例变化模式一致”——正是模型 (6) 的含义。
 
@@ -146,12 +150,21 @@ constraint_varspec <- list(
 
 m7 <- vglm(
   Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
-  family = cumulative(parallel = TRUE, reverse = TRUE),   # 基项平行
+  family = cumulative(parallel = FALSE, reverse = TRUE),   # 先放开，再用 constraints 实现结构
   data = dat,
-  constraints = constraint_varspec                        # 变量特定的 f_j
+  constraints = c(constraint_varspec, list(                # 变量特定的 f_j
+    "age"   = matrix(1, nrow = K, dimnames = list(NULL, "beta_age")),
+    "sex"   = matrix(1, nrow = K, dimnames = list(NULL, "beta_sex")),
+    "smoke" = matrix(1, nrow = K, dimnames = list(NULL, "beta_smoke"))
+  ))
 )
 summary(m7)
 ```
+
+解释：
+
+* `age, sex, smoke` = **平行部分 β**，同样靠 `matrix(1, …)` 保证 3 个 cutpoints 共用同一个系数；
+* `age_tr, sex_tr, smoke_tr` = **趋势部分 γ**，但此时分别乘以 `fj_age / fj_sex / fj_smoke`，于是每个变量按自己的节奏非比例。
 
 ---
 
