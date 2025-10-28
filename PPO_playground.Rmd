@@ -61,7 +61,7 @@ probs <- cbind(p0,p1,p2,p3)
 # 按多项分布生成 Y
 Y <- apply(probs, 1, function(p) sample(0:3, size=1, prob=p, replace=TRUE))
 
-dat <- data.frame(Y=factor(Y), age=as.numeric(age), sex=sex, smoke=smoke)
+dat <- data.frame(Y = ordered(Y), age = as.numeric(age), sex = sex, smoke = smoke)
 table(dat$Y)
 ```
 
