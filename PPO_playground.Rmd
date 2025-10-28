@@ -6,7 +6,6 @@
 ## ⚙️ 需要的包
 
 ```{r}
-install.packages("VGAM")   # 若未安装
 library(VGAM)
 set.seed(2025)
 ```
