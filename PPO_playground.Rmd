@@ -61,7 +61,7 @@ probs <- cbind(p0,p1,p2,p3)
 # 按多项分布生成 Y
 Y <- apply(probs, 1, function(p) sample(0:3, size=1, prob=p, replace=TRUE))
 
-dat <- data.frame(Y=factor(Y), age=as.numeric(age), sex=sex, smoke=smoke)
+dat <- data.frame(Y = ordered(Y), age = as.numeric(age), sex = sex, smoke = smoke)
 table(dat$Y)
 ```
 
@@ -88,35 +88,35 @@ summary(m5)
 ## 3) 拟合 **模型 (6)**：统一约束（所有非比例变量共用同一 f_j）
 
 思想：令**所有“趋势项”共享同一个 f_j**（这里用线性：`fj = 0,1,2`）
-做法：把每个变量拆成“平行项 + 趋势项”，并用 `xij` 把趋势项在第 j 个 cutpoint 乘以同一个 `fj`。
+做法：把每个变量拆成“平行项 + 趋势项”，再用 `constraints` 把趋势项在第 j 个 cutpoint 乘以同一个 `fj`。
 
 ```{r}
-# 构造“趋势项”变量（与原变量数值相同，但会被 xij 赋予 cutpoint 权重）
+# 构造“趋势项”变量（与原变量数值相同，但会被 constraints 赋予 cutpoint 权重）
 dat$age_tr   <- dat$age
 dat$sex_tr   <- dat$sex
 dat$smoke_tr <- dat$smoke
 
 fj_linear <- 0:(K-1)  # 0,1,2
 
-# 为每个趋势项构造 xij 矩阵：n 行、K 列，每列对应该 cutpoint 的乘数
-XIJ <- list(
-  "age_tr"   = matrix(rep(fj_linear, each = n), n, K),
-  "sex_tr"   = matrix(rep(fj_linear, each = n), n, K),
-  "smoke_tr" = matrix(rep(fj_linear, each = n), n, K)
+# 约束矩阵：把“趋势项”的 K 个系数都锁定为 γ × f_j
+constraint_linear <- list(
+  "age_tr"   = matrix(fj_linear, nrow = K, dimnames = list(NULL, "gamma_age")),
+  "sex_tr"   = matrix(fj_linear, nrow = K, dimnames = list(NULL, "gamma_sex")),
+  "smoke_tr" = matrix(fj_linear, nrow = K, dimnames = list(NULL, "gamma_smoke"))
 )
 
 m6 <- vglm(
   Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
-  family = cumulative(parallel = TRUE, reverse = TRUE),   # 基项平行
+  family = cumulative(parallel = TRUE ~ age + sex + smoke, reverse = TRUE),
   data = dat,
-  xij = XIJ                                                 # 统一 f_j 作用在所有趋势项上
+  constraints = constraint_linear                       # 统一 f_j 作用在所有趋势项上
 )
 summary(m6)
 ```
 
 解释：
 
-* `age, sex, smoke` = **平行部分 β**（各 cutpoint 相同）
+* `age, sex, smoke` = **平行部分 β**，靠 `parallel = TRUE ~ age + sex + smoke` 让三个 cutpoints 共用同一个值；
 * `age_tr, sex_tr, smoke_tr` = **趋势部分 γ**，其对第 j 个 cutpoint 的贡献 = γ × `fj_linear[j]`
 * 因为大家都用同一个 `fj_linear`，所以“所有变量的非比例变化模式一致”——正是模型 (6) 的含义。
 
@@ -130,28 +130,33 @@ summary(m6)
 * sex：`(0,0,1)`（仅最后一档偏离）
 * smoke：`(0,1,1)`（后两档恒定）
 
-做法：`xij` 列表里为每个趋势项传不同的矩阵即可。
+做法：给 `constraints` 列表里的每个趋势项传不同的约束向量即可。
 
 ```{r}
-# 变量特定的 f_j
+# 变量特定的 f_j（每个趋势项使用不同的约束向量）
 fj_age   <- c(0,1,2)
 fj_sex   <- c(0,0,1)
 fj_smoke <- c(0,1,1)
 
-XIJ_varspec <- list(
-  "age_tr"   = matrix(rep(fj_age,   each = n), n, K),
-  "sex_tr"   = matrix(rep(fj_sex,   each = n), n, K),
-  "smoke_tr" = matrix(rep(fj_smoke, each = n), n, K)
+constraint_varspec <- list(
+  "age_tr"   = matrix(fj_age,   nrow = K, dimnames = list(NULL, "gamma_age")),
+  "sex_tr"   = matrix(fj_sex,   nrow = K, dimnames = list(NULL, "gamma_sex")),
+  "smoke_tr" = matrix(fj_smoke, nrow = K, dimnames = list(NULL, "gamma_smoke"))
 )
 
 m7 <- vglm(
   Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
-  family = cumulative(parallel = TRUE, reverse = TRUE),   # 基项平行
+  family = cumulative(parallel = TRUE ~ age + sex + smoke, reverse = TRUE),
   data = dat,
-  xij = XIJ_varspec                                       # 变量特定的 f_j
+  constraints = constraint_varspec                    # 变量特定的 f_j
 )
 summary(m7)
 ```
+
+解释：
+
+* `age, sex, smoke` = **平行部分 β**，同样借助 `parallel = TRUE ~ age + sex + smoke` 让 3 个 cutpoints 共用同一个系数；
+* `age_tr, sex_tr, smoke_tr` = **趋势部分 γ**，但此时分别乘以 `fj_age / fj_sex / fj_smoke`，于是每个变量按自己的节奏非比例。
 
 ---
 
@@ -234,8 +239,8 @@ anova(m_PO, m7, type="LR")
 ### ✅ 你学到了什么
 
 * **模型 (5)**：`parallel = FALSE`（每个变量 × 每个 cutpoint 各自一套系数）
-* **模型 (6)**：用 `xij` 给所有趋势项一个**共同**的 `fj`（如线性 0,1,2）
-* **模型 (7)**：用 `xij` 给每个趋势项**各自**的 `fj`（变量特定约束），这就是论文里 `diag(f_j)` 的落地实现
+* **模型 (6)**：用 `constraints` 给所有趋势项一个**共同**的 `fj`（如线性 0,1,2）
+* **模型 (7)**：用 `constraints` 给每个趋势项**各自**的 `fj`（变量特定约束），这就是论文里 `diag(f_j)` 的落地实现
 
 ---
 
