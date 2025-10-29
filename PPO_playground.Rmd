@@ -116,7 +116,7 @@ intercept_constraint <- diag(1, nrow = K, ncol = K)
 colnames(intercept_constraint) <- paste0("alpha_", seq_len(K))
 
 base_constraints <- list(
-  "(Intercept)" = diag(1, nrow = K, ncol = K, dimnames = list(NULL, paste0("alpha_", seq_len(K))))
+  "(Intercept)" = intercept_constraint
 )
 
 m6 <- vglm(
