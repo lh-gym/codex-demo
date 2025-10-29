@@ -398,6 +398,7 @@ run_ppo_pipeline <- function(data, response, predictors, fj_list, non_parallel =
 
 # ---- demonstration --------------------------------------------------------
 
+
 #' 生成与 Rmd 相同的模拟数据，便于脚本直接运行。
 simulate_example <- function(seed = 2025L, n = 2000L) {
   set.seed(seed)

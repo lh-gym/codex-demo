@@ -1,0 +1,31 @@
+---
+title: "PPO_final"
+author: "linghan"
+date: "2025-11-01"
+output: html_document
+---
+install pack
+```{r}
+# 安装并加载所需R包
+# install.packages("ordinal")    # 若未安装ordinal包，可取消注释运行
+# install.packages("MASS")       # MASS包常自带于基础R，无则执行此行
+# install.packages("brant")      # 若未安装brant包，用于Brant检验
+# install.packages("nnet")       # 若未安装nnet包，用于多项logit模型
+library(ordinal)   # clm函数用于拟合累计链接模型（可指定部分比例优势）
+library(MASS)      # polr函数用于拟合PO模型
+library(brant)     # brant函数用于检验PO假设（Score检验法）
+library(nnet)      # multinom函数用于拟合无序多项Logit模型
+
+# 读取CSV数据（请将路径替换为实际文件位置）
+df <- read.csv("miss_del_variables.csv")
+# 因变量HUIDCOG转换为有序因子（确保按数值大小定义等级顺序）
+df$HUIDCOG <- factor(df$HUIDCOG, ordered = TRUE)
+# 将部分自变量转换为适当类型
+df$DHH_SEX <- factor(df$DHH_SEX)   # 性别作为分类变量 (1,2 两类别)
+# 其余自变量如DHHGAGE（年龄组）、EDUDH04（教育水平）、GEN_01（自评健康）为数值编码，视作连续/有序数值使用
+
+# 查看因变量分布（各等级频数）
+table(df$HUIDCOG)
+
+```
+
