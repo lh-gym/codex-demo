@@ -46,9 +46,25 @@ make_trend_constraint <- function(weights, name) {
 #' @param trend_name name of the trend term.
 #' @param weights f_j vector used in the constraints.
 compute_effective_slopes <- function(coef_matrix, base_name, trend_name, weights) {
-  beta <- coef_matrix[base_name, 1]
+  beta_idx <- grep(paste0("^", base_name, "(?::[0-9]+)?$"), rownames(coef_matrix), perl = TRUE)
+  if (length(beta_idx) != length(weights)) {
+    stop(
+      sprintf(
+        "Unable to locate %d coefficients for '%s' in the fitted model.",
+        length(weights),
+        base_name
+      )
+    )
+  }
+
+  beta <- coef_matrix[beta_idx, 1]
+
+  if (!trend_name %in% rownames(coef_matrix)) {
+    stop(sprintf("Trend term '%s' not found in the fitted model.", trend_name))
+  }
+
   gamma <- coef_matrix[trend_name, 1]
-  beta + gamma * weights
+  as.numeric(beta + gamma * weights)
 }
 
 # ---- main pipeline --------------------------------------------------------
