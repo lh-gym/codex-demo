@@ -1,9 +1,9 @@
 name: Codex Auto PR Merge
 
 on:
-  pull_request:
-    branches: [han/validation]         # 只在合到 han/validation 的 PR 上运行
-    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_target:
+    branches: [han/validation]
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlocked]
 
 permissions:
   contents: write
@@ -11,22 +11,22 @@ permissions:
 
 jobs:
   automerge:
-    # 只处理来自同仓库（非 fork）的 PR；并且默认不处理 draft PR
-    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == false
+    if: ${{ github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     steps:
       - name: Auto approve
         uses: hmarr/auto-approve-action@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          review-message: 'Auto-approve by workflow'
+          review-message: Auto-approve by workflow
 
       - name: Auto merge
         uses: pascalgn/automerge-action@v0.15.6
         env:
-          GITHUB_TOKEN:           ${{ secrets.GITHUB_TOKEN }}
-          MERGE_METHOD:           squash
-          MERGE_LABELS:           ""       # 不要求必须打某个 label
-          MERGE_DELETE_BRANCH:    true     # 合并后删掉来源分支
-          MERGE_RETRIES:          5
-          MERGE_RETRY_SLEEP:      10000
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_METHOD: squash
+          MERGE_FORKS: true          # 允许外部分支 / fork
+          MERGE_LABELS: ""           # 不要求特定 label
+          MERGE_DELETE_BRANCH: true  # 合并后删除来源分支
+          MERGE_RETRIES: 10
+          MERGE_RETRY_SLEEP: 10000
