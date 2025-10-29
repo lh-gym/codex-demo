@@ -1,17 +1,15 @@
 name: r-ci
 
 on:
-  pull_request_target:                # 任何指向本仓库的 PR 都会跑（所有分支）
+  pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   run-r:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    permissions: { contents: read }
     steps:
-      - name: Checkout PR commit
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -19,41 +17,25 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
       - uses: r-lib/actions/setup-pandoc@v2
 
-      # 先优先使用 renv；若没有 renv.lock，就装最小依赖（rmarkdown/knitr）
-      - name: Restore R packages
-        run: |
-          Rscript -e 'if (file.exists("renv.lock")) {
-                         install.packages("renv", repos="https://cloud.r-project.org");
-                         renv::restore()
-                       } else {
-                         install.packages(c("rmarkdown","knitr"), repos="https://cloud.r-project.org")
-                       }'
+      # 用带缓存的依赖安装（有 renv.lock 会自动识别）
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          use-public-rspm: true
+          cache-version: 1
+          extra-packages: |
+            any::rmarkdown
+            any::knitr
+            any::VGAM
 
-      # 扫描并运行所有 .R；渲染所有 .Rmd（排除常见无关目录）
+      # ✅ 仅这一行是关键改动：不再用 here-doc，直接跑脚本
       - name: Run .R and render .Rmd
-        run: |
-          Rscript - <<'RS'
-          options(warn=2)
-          excl <- c("^\\.git/", "^\\.github/", "^renv/", "^\\.Rproj\\.user/",
-                    "^_bookdown_files/", "^\\.quarto/", "^_freeze/", "^output/")
-          all <- list.files(".", recursive=TRUE, all.files=FALSE, include.dirs=FALSE)
-          if (length(all)) {
-            for (p in excl) all <- all[!grepl(p, all)]
-          }
-          r_files   <- grep("\\\\.R$",   all, value=TRUE)
-          rmd_files <- grep("\\\\.Rmd$", all, value=TRUE)
+        run: Rscript ci/r_ci.R
 
-          cat("R files:  ", length(r_files),  "\n")
-          for (f in r_files) {
-            cat(">>> source:", f, "\n")
-            tryCatch(source(f, chdir=TRUE, echo=TRUE, max.deparse.length=Inf),
-                     error=function(e) stop(sprintf("Error in %s: %s", f, e$message)))
-          }
-
-          cat("Rmd files:", length(rmd_files), "\n")
-          if (length(rmd_files)) {
-            if (!requireNamespace("rmarkdown", quietly=TRUE))
-              stop("rmarkdown not installed but Rmd files found.")
-            for (f in rmd_files) {
-              cat(">>> render:", f, "\n")
-              rmarkdown::r
+      - name: Upload rendered HTMLs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r-outputs
+          path: |
+            **/*.html
+            **/*.nb.html
