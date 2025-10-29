@@ -6,6 +6,13 @@
 ## ⚙️ 需要的包
 
 ```{r}
+# 自动安装并加载所需包，保证 R Markdown 在新环境中也能顺利运行
+required_pkgs <- c("VGAM")
+missing_pkgs <- required_pkgs[!vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)]
+if (length(missing_pkgs)) {
+  install.packages(missing_pkgs, repos = "https://cloud.r-project.org")
+}
+
 library(VGAM)
 set.seed(2025)
 ```
@@ -105,11 +112,18 @@ constraint_linear <- list(
   "smoke_tr" = matrix(fj_linear, nrow = K, dimnames = list(NULL, "gamma_smoke"))
 )
 
+intercept_constraint <- diag(1, nrow = K, ncol = K)
+colnames(intercept_constraint) <- paste0("alpha_", seq_len(K))
+
+base_constraints <- list(
+  "(Intercept)" = intercept_constraint
+)
+
 m6 <- vglm(
   Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
   family = cumulative(parallel = FALSE, reverse = TRUE),   # 先放开，再用 constraints 实现平行+趋势
   data = dat,
-  constraints = c(constraint_linear, list(                 # 统一 f_j 作用在所有趋势项上
+  constraints = c(base_constraints, constraint_linear, list( # 统一 f_j 作用在所有趋势项上
     "age"   = matrix(1, nrow = K, dimnames = list(NULL, "beta_age")),
     "sex"   = matrix(1, nrow = K, dimnames = list(NULL, "beta_sex")),
     "smoke" = matrix(1, nrow = K, dimnames = list(NULL, "beta_smoke"))
@@ -152,7 +166,7 @@ m7 <- vglm(
   Y ~ age + sex + smoke + age_tr + sex_tr + smoke_tr,
   family = cumulative(parallel = FALSE, reverse = TRUE),   # 先放开，再用 constraints 实现结构
   data = dat,
-  constraints = c(constraint_varspec, list(                # 变量特定的 f_j
+  constraints = c(base_constraints, constraint_varspec, list( # 变量特定的 f_j
     "age"   = matrix(1, nrow = K, dimnames = list(NULL, "beta_age")),
     "sex"   = matrix(1, nrow = K, dimnames = list(NULL, "beta_sex")),
     "smoke" = matrix(1, nrow = K, dimnames = list(NULL, "beta_smoke"))
