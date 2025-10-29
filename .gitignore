@@ -1,4 +1,25 @@
-.Rproj.user
+# R / RStudio
 .Rhistory
 .RData
 .Ruserdata
+.Rproj.user/
+*.Rproj
+
+# Quarto / Rmd 构建产物
+*_cache/
+*_files/
+.quarto/
+_freeze/
+rmd-outputs/
+_bookdown_files/
+output/
+*.html
+*.nb.html
+
+# 你截图里的 notebooks 临时产物
+**/notebooks/**/chunks.json
+**/notebooks/**/00000*.csv
+**/notebooks/**/00000*.error
+
+# OS
+.DS_Store
