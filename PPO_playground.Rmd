@@ -112,11 +112,6 @@ constraint_linear <- list(
   "smoke_tr" = matrix(fj_linear, nrow = K, dimnames = list(NULL, "gamma_smoke"))
 )
 
-intercept_constraint <- diag(1, nrow = K, ncol = K)
-colnames(intercept_constraint) <- paste0("alpha_", seq_len(K))
-
-base_constraints <- list(
-  "(Intercept)" = intercept_constraint
 base_constraints <- list(
   "(Intercept)" = diag(1, nrow = K, ncol = K, dimnames = list(NULL, paste0("alpha_", seq_len(K))))
 )
