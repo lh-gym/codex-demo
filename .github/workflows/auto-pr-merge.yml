@@ -1,0 +1,32 @@
+name: Codex Auto PR Merge
+
+on:
+  pull_request_target:
+    branches: [han/validation]
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlocked]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    if: ${{ github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto approve
+        uses: hmarr/auto-approve-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          review-message: Auto-approve by workflow
+
+      - name: Auto merge
+        uses: pascalgn/automerge-action@v0.15.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_METHOD: squash
+          MERGE_FORKS: true          # 允许外部分支 / fork
+          MERGE_LABELS: ""           # 不要求特定 label
+          MERGE_DELETE_BRANCH: true  # 合并后删除来源分支
+          MERGE_RETRIES: 10
+          MERGE_RETRY_SLEEP: 10000

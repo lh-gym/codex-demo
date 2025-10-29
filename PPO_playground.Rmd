@@ -249,9 +249,9 @@ m_PO <- vglm(
 )
 
 # 似然比比较（越大越表明改进越明显）
-anova(m_PO, m5, type = "I", test = "LR")
-anova(m_PO, m6, type = "I", test = "LR")
-anova(m_PO, m7, type = "I", test = "LR")
+anova(m_PO, m5,type = 'I', test = "LR")
+anova(m_PO, m6, type = 'I',test = "LR")
+anova(m_PO, m7, type = 'I',test = "LR")
 ```
 
 在这个模拟里，因为我们按 (7) 生成数据，通常 **(7) 的拟合最好**，(6) 次之，(5) 也能很好（但参数多）。

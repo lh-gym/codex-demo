@@ -25,7 +25,7 @@ After that you can render the notebook, for example:
 Rscript -e "rmarkdown::render('PPO_playground.Rmd')"
 ```
 
-> **Note:** In the hosted environment used for these examples, the default proxy blocks `apt-get` traffic (returns HTTP 403). A failed attempt typically ends with messages like `The repository 'http://archive.ubuntu.com/ubuntu noble InRelease' is not signed.` and `Failed to fetch ... 403 Forbidden`. If you encounter the same issue, either switch to a network that allows access to Ubuntu mirrors, configure an internal mirror, or install R locally on your machine and run the render command there instead.
+> **Note:** In the hosted environment used for these examples, the default proxy blocks `apt-get` traffic (returns HTTP 403). If you encounter the same issue, either switch to a network that allows access to Ubuntu mirrors, configure an internal mirror, or install R locally on your machine and run the render command there instead.
 
 ### Alternative: Conda/Mamba
 
