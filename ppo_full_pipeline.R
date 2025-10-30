@@ -32,7 +32,9 @@ library(rlang)
 
 #' 构造截距的单位矩阵约束，确保每个 cutpoint 拥有独立阈值。
 make_intercept_constraint <- function(K) {
-  diag(1, nrow = K, ncol = K, dimnames = list(NULL, paste0("alpha_", seq_len(K))))
+  mat <- diag(1, nrow = K, ncol = K)
+  colnames(mat) <- paste0("alpha_", seq_len(K))
+  mat
 }
 
 #' 构造 trend 约束矩阵：第 j 行为 f_j，对应 γ × f_j。
