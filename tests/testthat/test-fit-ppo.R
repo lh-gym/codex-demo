@@ -5,6 +5,7 @@ source("ppo_full_pipeline.R")
 example <- simulate_example(seed = 99, n = 400)
 example_data <- example$data
 predictors <- c("age", "sex", "smoke")
+fj_age <- c(0, 1, 2)
 
 test_that("fit_ppo defaults to proportional odds", {
   fit_po <- fit_ppo(
@@ -33,7 +34,6 @@ test_that("non_parallel variables obtain free slopes", {
 })
 
 test_that("trend constraints respect supplied fj", {
-  fj_age <- c(0, 1, 2)
   fit_trend <- fit_ppo(
     data = example_data,
     response = Y,
@@ -50,5 +50,21 @@ test_that("trend constraints respect supplied fj", {
   expected <- beta_age + gamma_age * fj_age
   eff_age <- fit_trend$effective_slopes$estimate[fit_trend$effective_slopes$term == "age"]
 
+  expect_false(is.na(beta_age))
+  expect_false(anyNA(eff_age))
   expect_equal(round(eff_age, 6), round(expected, 6))
+})
+
+test_that("non_parallel variables cannot also supply trend patterns", {
+  expect_error(
+    fit_ppo(
+      data = example_data,
+      response = Y,
+      predictors = predictors,
+      fj_list = list(age = fj_age),
+      non_parallel = c("age"),
+      keep_po = FALSE
+    ),
+    "non_parallel"
+  )
 })

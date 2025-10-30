@@ -208,6 +208,13 @@ fit_ppo <- function(
       bad <- names(trend_info)[invalid_len]
       stop(sprintf("f_j 长度必须等于 cutpoint 数 (K=%d)：%s", K, paste(bad, collapse = ", ")))
     }
+    conflict_vars <- intersect(non_parallel %||% character(), names(trend_info))
+    if (length(conflict_vars)) {
+      stop(sprintf(
+        "以下变量同时出现在 non_parallel 与 fj_list 中，模型含义冲突：%s",
+        paste(conflict_vars, collapse = ", ")
+      ))
+    }
   }
 
   data_work <- data
@@ -226,7 +233,7 @@ fit_ppo <- function(
   )
 
   intercept_constraint <- list("(Intercept)" = make_intercept_constraint(K))
-  parallel_vars <- setdiff(predictors, union(non_parallel, names(trend_info)))
+  parallel_vars <- setdiff(predictors, non_parallel %||% character())
   parallel_constraints <- lapply(parallel_vars, function(var) {
     matrix(1, nrow = K, dimnames = list(NULL, paste0("beta_", var)))
   })
@@ -295,7 +302,7 @@ fit_ppo <- function(
     predictor_info = list(
       non_parallel = non_parallel,
       structured = names(trend_info),
-      parallel = parallel_vars
+      parallel = setdiff(parallel_vars, names(trend_info))
     ),
     K = K
   )
