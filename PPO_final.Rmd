@@ -16,16 +16,44 @@ library(MASS)      # polr函数用于拟合PO模型
 library(brant)     # brant函数用于检验PO假设（Score检验法）
 library(nnet)      # multinom函数用于拟合无序多项Logit模型
 
-# 读取CSV数据（请将路径替换为实际文件位置）
-df <- read.csv("miss_del_variables.csv")
-# 因变量HUIDCOG转换为有序因子（确保按数值大小定义等级顺序）
-df$HUIDCOG <- factor(df$HUIDCOG, ordered = TRUE)
-# 将部分自变量转换为适当类型
-df$DHH_SEX <- factor(df$DHH_SEX)   # 性别作为分类变量 (1,2 两类别)
-# 其余自变量如DHHGAGE（年龄组）、EDUDH04（教育水平）、GEN_01（自评健康）为数值编码，视作连续/有序数值使用
+# 读取RDS 数据（请将路径替换为实际文件位置）
+df <- readRDS("mydata.rds")
 
 # 查看因变量分布（各等级频数）
 table(df$HUIDCOG)
 
+```
+fit 前先测 data
+```{r}
+# 检查响应变量类型
+str(df$HUIDCOG)
+table(df$HUIDCOG, useNA = "ifany")
+```
+
+```{r}
+# 使用多项Logit模型拟合无约束模型
+# 自变量包括：年龄组(DHHGAGE)、性别(DHH_SEX)、教育(EDUDH04)、自评健康(GEN_01)
+# 权重为WTS_del
+# 提示: multinom 默认不输出p值，可通过summary计算近似标准误和z值
+multinom_model <- multinom(HUIDCOG ~ GEO_PRV + DHHGAGE + DHH_SEX + EDUDH04 + IN2GHH + IN2GPER + 
+                           PA2DSCR + PA2_01A + PA2_01BA + PA2_01BC + PA2_01BD + PA2_01BE + 
+                           PA2_01BF + PA2_01C + SSADEMO + NUR_06 + NUR_07 + FALG03 + GEN_02B + 
+                           GEN_01 + GEN_02 + SPAG01 + HWTGWTK + HWTGISW + DPSDSF + CCCD901 + 
+                           WTS_M + DPSDPP + DPS_02 + GEOGCMA2 + SLP_02 + ALC_1 + SPAGFRE + 
+                           HWTGBMI + SMKDSTY + ALCDTTM + DPS_23, 
+                           data = df, weights = WTS_del)
+# 显示模型概要
+summary(multinom_model)
+
+```
+
+```{r}
+po_model <- polr(HUIDCOG ~ DHHGAGE + DHH_SEX + EDUDH04 + GEN_01,
+ data = df, weights = WTS_del)
+summary(po_model) # 显示模型摘要
+# Brant检验：Score检验PO假设
+brant(po_model)
+# Nominal LRT检验：逐个检验加入Nominal效应的改进（似然比检验）
+nominal_test(po_model)
 ```
 
