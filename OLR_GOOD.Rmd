@@ -19,6 +19,8 @@ gc()
 if(!is.null(dev.list())) dev.off()
 
 library(survey)
+library(VGAM)
+library(svyVGAM)
 
 dat<-read.csv("/Users/yelinghan/Desktop/data_real/CCHS_ready.csv")
 des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
@@ -306,6 +308,7 @@ round(cbind(OR=exp(co), `2.5%`=exp(co - z*se), `97.5%`=exp(co + z*se)), 3)
 # unconstrained model
 
 ```{r}
+
 fit_PPO <- svy_vglm(form, design = des_ok,
                     family = VGAM::cumulative(parallel = FALSE, link = "logitlink"))
 ```
