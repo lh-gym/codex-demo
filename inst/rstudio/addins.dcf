@@ -1,0 +1,4 @@
+Name: Save and Push
+Description: Save current file, commit, and push automatically
+Binding: save_commit_push
+Interactive: false
