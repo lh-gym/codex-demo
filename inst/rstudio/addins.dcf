@@ -2,3 +2,8 @@ Name: Save and Push
 Description: Save current file, commit, and push automatically
 Binding: save_commit_push
 Interactive: false
+
+Name: Git Sync and Push
+Description: Save, pull, commit, and push all changes
+Binding: git_sync_push
+Interactive: false
