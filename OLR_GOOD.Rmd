@@ -8,6 +8,7 @@ output: html_document
 ```{}
 install.packages("gert")
 install.packages("rstudioapi")
+install.packages("svyVGAM")
 ```
 
 ```{r setup, include=FALSE}
@@ -24,8 +25,31 @@ gc()
 if(!is.null(dev.list())) dev.off()
 
 library(survey)
+library(svyVGAM)
 
 dat<-read.csv("/Users/yelinghan/Desktop/data_real/CCHS_ready.csv")
+
+# 保留原有水平，同时确保 Cognition 等级保持有序（不删除原始水平）
+if ("HUIDCOG" %in% names(dat)) {
+  if (is.factor(dat$HUIDCOG)) {
+    huidcog_levels <- levels(dat$HUIDCOG)
+  } else {
+    huidcog_levels <- sort(unique(as.character(dat$HUIDCOG[!is.na(dat$HUIDCOG)])))
+  }
+  # 若原始数据缺失 6 级别，仍然显式保留
+  if (!("6" %in% huidcog_levels)) {
+    huidcog_levels <- c(huidcog_levels, "6")
+  }
+  dat$HUIDCOG <- factor(dat$HUIDCOG, levels = huidcog_levels, ordered = TRUE)
+}
+
+# 需要数值型的指标提前转换为数值
+numeric_vars <- intersect(c("PA2DSCR", "SSADEMO", "DPSDSF", "HWTGBMI"), names(dat))
+dat[numeric_vars] <- lapply(dat[numeric_vars], function(x) {
+  if (is.numeric(x)) return(x)
+  as.numeric(as.character(x))
+})
+
 des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
 ```
 
@@ -174,7 +198,7 @@ if (r < ncol(mm)) {
   print(dep_by_var)
 
   cat("\n[提示] 上述对应的原变量(项)可能互相重叠、编码完全一致或与其他变量线性相关；",
-      "可尝试：去掉其中一个变量、合并稀疏水平、或在建模前对因子 droplevels。\n", sep = "")
+      "可尝试：调整建模策略（如引入惩罚项、重新编码水平、或使用部分比例优势模型），避免直接删除水平或变量。\n", sep = "")
 } else {
   cat("\n[线性相关] 未检测到列线性相关（矩阵满秩）。\n")
 }
@@ -197,37 +221,21 @@ svytable(~ HUIDCOG, subset(des, ok))
 #cog = 6 样本太少 故合并
 
 ```{r}
-df <- des$variables
-df$HUIDCOG <- droplevels(df$HUIDCOG)
-df2 <- subset(df, HUIDCOG != tail(levels(df$HUIDCOG), 1))  # 去掉“Unable to remember”
-df2$HUIDCOG <- droplevels(df2$HUIDCOG)
-# 去掉空水平
-```
+mf_initial <- model.frame(form, data = des$variables, na.action = na.pass)
+ok_cases <- complete.cases(mf_initial)
 
-```         
-saveRDS(df2, "df2_database.rds")
-```
+des_ok <- subset(des, ok_cases)
+saveRDS(des_ok$variables, "df2_database.rds")
 
-#order 效果不好 去掉order
-
-```{r}
-# 1) 把任何 ordered 的都降级成普通 factor（保险）
-df2[] <- lapply(df2, function(x) if (is.ordered(x)) factor(x, ordered = FALSE) else x)
-#但仍保留 COG 为 ordered factor
-df2$HUIDCOG <-factor(df2$HUIDCOG, ordered = TRUE)
-```
-
-```{r}
-des2 <- svydesign(ids=~1, weights=~WTS_del, data=df2, nest=TRUE)
-for (v in names(des2$variables)) {
-  x <- des2$variables[[v]]
+for (v in names(des_ok$variables)) {
+  x <- des_ok$variables[[v]]
   # 跳过 NA，再数唯一值
   if (length(unique(na.omit(x))) > 50) {
     message("跳过变量：", v, "（唯一值超过 50）")
     next
   }
   cat("\n===== ", v, " =====\n")
-  print(svytable(as.formula(paste0("~", v)), design = des2))
+  print(svytable(as.formula(paste0("~", v)), design = des_ok))
 }
 
 ```
@@ -239,19 +247,20 @@ check_zero_cells <- function(y, v, des){
   tab <- svytable(as.formula(paste0("~", y, "+", v)), des)
   any(tab == 0)
 }
-bad_sep <- Filter(function(v) check_zero_cells(y, v, des2), xs)
+bad_sep <- Filter(function(v) check_zero_cells(y, v, des_ok), xs)
 bad_sep
 
 ```
 
-#测试一下是不是上述原因
+#测试一下是不是上述原因（不删变量，只记录诊断信息）
 
-```         
-xs2 <- setdiff(xs, bad_sep)  # 去掉这4个问题变量
-form2 <- as.formula(paste(y, "~", paste(xs2, collapse=" + ")))
-
-fit2 <- svyolr(form2, design = subset(des2, complete.cases(model.frame(form2, data = des2$variables))))
-summary(fit2)
+```{r}
+if (length(bad_sep)) {
+  cat("以下自变量与应变量组合存在零单元，可能导致数值不稳定，但保持原变量集合:\n")
+  print(bad_sep)
+} else {
+  cat("未发现零单元组合。\n")
+}
 ```
 
 #转一下变量形式，??? DPSDSF 可以转换成 numeric 吗 if 他是 score:
@@ -273,37 +282,74 @@ delusional disorders, or psychotic disorders NOS) were ignored.
 Higher scores indicate higher level of depression.
 ```
 
-#全部转换成num and redesign
-
 ```{r}
-numeric_vars <- c("PA2DSCR", "SSADEMO", "DPSDSF", "HWTGBMI")
-des2$variables[numeric_vars] <- lapply(des2$variables[numeric_vars], function(x) as.numeric(as.character(x)))
+fit_olr <- try(svyolr(form, design = des_ok), silent = TRUE)
 
-```
-
-```{r}
-mf <- model.frame(form, data = des2$variables, na.action = na.pass)
-ok <- complete.cases(mf)
-
-des_ok <- subset(des2, ok)
-des_ok$variables[] <- lapply(des_ok$variables, function(x) if (is.factor(x)) droplevels(x) else x)
-
-fit2 <- svyolr(form, design = des_ok)
-summary(fit2)
-```
-
-```         
-fit2 <- svyolr(form, design = subset(des2, complete.cases(model.frame(form, data=des2$variables)))) 
-summary(fit2)
+if (inherits(fit_olr, "try-error")) {
+  cat("svyolr 拟合失败：", conditionMessage(attr(fit_olr, "condition")), "\n")
+} else {
+  summary(fit_olr)
+}
 ```
 
 or: odd ratio
 
+# unconstrained model
+
+```{r}
+build_ppo <- function(maxit = 50, trace = TRUE, family_args = list()) {
+  fam_call <- c(list(
+    parallel = FALSE,
+    link = "logitlink"
+  ), family_args)
+
+  do.call(
+    svy_vglm,
+    c(
+      list(
+        form,
+        design = des_ok,
+        family = do.call(VGAM::cumulative, fam_call)
+      ),
+      if (!is.null(maxit)) list(control = VGAM::vglm.control(maxit = maxit, trace = trace)) else list()
+    )
+  )
+}
+
+ppo_attempts <- list(
+  list(maxit = 100, trace = FALSE, family_args = list()),
+  list(maxit = NULL, trace = FALSE, family_args = list())
+)
+
+fit_PPO <- NULL
+ppo_errors <- list()
+for (spec in ppo_attempts) {
+  fit_try <- try(do.call(build_ppo, spec), silent = TRUE)
+  if (!inherits(fit_try, "try-error")) {
+    fit_PPO <- fit_try
+    break
+  }
+  ppo_errors[[length(ppo_errors) + 1]] <- conditionMessage(attr(fit_try, "condition"))
+}
+
+if (is.null(fit_PPO)) {
+  cat("svy_vglm 所有尝试均失败，错误信息如下：\n")
+  print(ppo_errors)
+}
+```
+
 summary with p value added
 
 ```{r}
-ctable <- coef(summary(fit2))
+fit_effects <- if (!inherits(fit_olr, "try-error")) {
+  fit_olr
+} else if (!is.null(fit_PPO)) {
+  fit_PPO
+} else {
+  stop("svyolr 和 svy_vglm 均未成功收敛，详见前述错误信息。")
+}
 
+ctable <- coef(summary(fit_effects))
 p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
 
 ## combined table
@@ -313,19 +359,13 @@ p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
 在控制其他变量后，年龄每上升一个等级，进入更差认知等级的优势比约增加 94% = (1-1.939)\*100% 。
 
 ```{r}
-co <- coef(fit2); se <- sqrt(diag(vcov(fit2))); z <- qnorm(0.975)
+co <- coef(fit_effects)
+se <- sqrt(diag(vcov(fit_effects)))
+z <- qnorm(0.975)
 
-round(cbind(OR=exp(co), `2.5%`=exp(co - z*se), `97.5%`=exp(co + z*se)), 3)
+round(cbind(OR = exp(co), `2.5%` = exp(co - z * se), `97.5%` = exp(co + z * se)), 3)
 
 ```
-
-# unconstrained model
-
-```{r}
-fit_PPO <- svy_vglm(form, design = des_ok,
-                    family = VGAM::cumulative(parallel = FALSE, link = "logitlink"))
-```
-
 
 #检查自动推送2
 
