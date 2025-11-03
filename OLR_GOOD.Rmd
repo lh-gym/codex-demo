@@ -8,6 +8,7 @@ output: html_document
 ```{}
 install.packages("gert")
 install.packages("rstudioapi")
+install.packages("svyVGAM")
 ```
 
 ```{r setup, include=FALSE}
@@ -24,6 +25,7 @@ gc()
 if(!is.null(dev.list())) dev.off()
 
 library(survey)
+library(svyVGAM)
 
 dat<-read.csv("/Users/yelinghan/Desktop/data_real/CCHS_ready.csv")
 des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
