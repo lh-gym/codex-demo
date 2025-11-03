@@ -4,16 +4,24 @@ author: "linghan"
 date: "2025-10-16"
 output: html_document
 ---
----
-title: "Untitled"
-author: "linghan"
-date: "2025-10-15"
-output: html_document
----
 
-```{r}
+```{r setup, include=FALSE}
+# 清空当前 R 环境
+rm(list = ls())
+
+# 清除控制台历史（可选）
+cat("\014")  # 等价于 Ctrl + L
+
+# 清理内存垃圾（可选，但推荐）
+gc()
+
+# 关闭所有图形设备（避免旧图残留）
+if(!is.null(dev.list())) dev.off()
+
 library(survey)
+
 dat<-read.csv("/Users/yelinghan/Desktop/data_real/CCHS_ready.csv")
+des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
 ```
 factor everything
 ```{r}
@@ -59,16 +67,29 @@ print(to_ord)
 ```{r}
 library(survey)
 options(survey.lonely.psu = "adjust")  # 兜底单PSU
+```
 
-library(survey)
-options(survey.lonely.psu = "adjust")
-
+DPS
+```{}
 y  <- "DPSDSF"
 xs <- c("DHHGAGE","DHH_SEX","EDUDH04","IN2GPER","PA2DSCR",
-        "SSADEMO","NUR_06","NUR_07","GEN_02B","GEN_01","GEN_02",
+        "SSADEMO","NUR_06","NUR_07","GEN_01","GEN_02",
         "HUIDCOG","SLP_02","GEOGCMA2","SPAGFRE","SMKDSTY",
         "ALCDTTM","HWTGBMI")
+print("OK")
+```
 
+COG
+```{r}
+y  <- "HUIDCOG"
+xs <- c("DHHGAGE","DHH_SEX","EDUDH04","IN2GPER","PA2DSCR",
+        "SSADEMO","NUR_06","NUR_07","GEN_01","GEN_02",
+        "DPSDSF","SLP_02","GEOGCMA2","SPAGFRE","SMKDSTY",
+        "ALCDTTM","HWTGBMI")
+```
+
+#form: variables selection
+```{r}
 des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
 
 form <- as.formula(paste(y, "~", paste(xs, collapse=" + ")))
@@ -161,16 +182,28 @@ print(table(dfu$HUIDCOG, useNA = "ifany"))
 svytable(~ HUIDCOG, subset(des, ok))
 
 ```
-cog = 6 样本太少 故合并
+#cog = 6 样本太少 故合并
 ```{r}
 df <- des$variables
 df$HUIDCOG <- droplevels(df$HUIDCOG)
 df2 <- subset(df, HUIDCOG != tail(levels(df$HUIDCOG), 1))  # 去掉“Unable to remember”
 df2$HUIDCOG <- droplevels(df2$HUIDCOG)
 # 去掉空水平
-write.csv(df2, "df2_database.csv", row.names = FALSE)
+```
 
+```{}
+saveRDS(df2, "df2_database.rds")
+```
 
+#order 效果不好 去掉order 
+```{r}
+# 1) 把任何 ordered 的都降级成普通 factor（保险）
+df2[] <- lapply(df2, function(x) if (is.ordered(x)) factor(x, ordered = FALSE) else x)
+#但仍保留 COG 为 ordered factor
+df2$HUIDCOG <-factor(df2$HUIDCOG, ordered = TRUE)
+```
+
+```{r}
 des2 <- svydesign(ids=~1, weights=~WTS_del, data=df2, nest=TRUE)
 for (v in names(des2$variables)) {
   x <- des2$variables[[v]]
@@ -184,9 +217,69 @@ for (v in names(des2$variables)) {
 }
 
 ```
+#找出在某一个catergory 有零个数的变量 例：huidcog = 6 时间 没有任何一个 PA2DSCR = 2
+```{r}
+check_zero_cells <- function(y, v, des){
+  tab <- svytable(as.formula(paste0("~", y, "+", v)), des)
+  any(tab == 0)
+}
+bad_sep <- Filter(function(v) check_zero_cells(y, v, des2), xs)
+bad_sep
+
+```
+
+#测试一下是不是上述原因
+```{}
+xs2 <- setdiff(xs, bad_sep)  # 去掉这4个问题变量
+form2 <- as.formula(paste(y, "~", paste(xs2, collapse=" + ")))
+
+fit2 <- svyolr(form2, design = subset(des2, complete.cases(model.frame(form2, data = des2$variables))))
+summary(fit2)
+
+```
+
+#转一下变量形式，??? DPSDSF 可以转换成 numeric 吗 if 他是 score:
+```{}
+DPSDSF: Depression Scale Short Form
+
+  This variable assesses the depression level of respondents who felt depressed or lost interest in things for 2 weeks or more
+during the past 12 months. 
+  These include normal periods of sadness (for example, after the death of a loved one), as well as"serious" depression.
+  The items used to measure depression are based on the work of Kessler and Mroczek (from University of Michigan). 
+  They selected a subset of items from the Composite International Diagnostic Interview (CIDI) that measure major depressive episodes (MDE). 
+
+  The CIDI is a structure diagnostic instrument that was designed to produce diagnoses according to the definitions and the criteria of both DSM-lll-R and the Diagnostic Criteria for the Research of the ICD-10. The short-form of
+MDE used in the CCHS was developed to operationalize Criteria A through C of the DSM-III-R diagnosis of MDE. The
+diagnostic hierarchy rules defined in the Criterion D (not superimposed on schizophrenia, schizophrenia form disorder,
+delusional disorders, or psychotic disorders NOS) were ignored.
+
+Higher scores indicate higher level of depression.
+
+```
+
+#全部转换成num and redesign
 
 ```{r}
-fit2 <- svyolr(form, design = subset(des2, complete.cases(model.frame(form, data=des2$variables))))
+numeric_vars <- c("PA2DSCR", "SSADEMO", "DPSDSF", "HWTGBMI")
+des2$variables[numeric_vars] <- lapply(des2$variables[numeric_vars], function(x) as.numeric(as.character(x)))
+
+```
+
+
+```{r}
+mf <- model.frame(form, data = des2$variables, na.action = na.pass)
+ok <- complete.cases(mf)
+
+des_ok <- subset(des2, ok)
+des_ok$variables[] <- lapply(des_ok$variables, function(x) if (is.factor(x)) droplevels(x) else x)
+
+fit2 <- svyolr(form, design = des_ok)
+summary(fit2)
+```
+
+
+```{}
+fit2 <- svyolr(form, design = subset(des2, complete.cases(model.frame(form, data=des2$variables)))) 
 summary(fit2)
 
 ```
@@ -210,6 +303,14 @@ co <- coef(fit2); se <- sqrt(diag(vcov(fit2))); z <- qnorm(0.975)
 round(cbind(OR=exp(co), `2.5%`=exp(co - z*se), `97.5%`=exp(co + z*se)), 3)
 
 ```
+# unconstrained model
+
+```{r}
+fit_PPO <- svy_vglm(form, design = des_ok,
+                    family = VGAM::cumulative(parallel = FALSE, link = "logitlink"))
+```
+
+
 
 
 redo with dps

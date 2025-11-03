@@ -4,30 +4,187 @@ author: "linghan"
 date: "2025-11-01"
 output: html_document
 ---
-install pack
-```{r}
+install pack and import data
+```{r setup, include=FALSE}
+# 清空当前 R 环境
+rm(list = ls())
+
+# 清除控制台历史（可选）
+cat("\014")  # 等价于 Ctrl + L
+
+# 清理内存垃圾（可选，但推荐）
+gc()
+
+# 关闭所有图形设备（避免旧图残留）
+if(!is.null(dev.list())) dev.off()
+
 # 安装并加载所需R包
 # install.packages("ordinal")    # 若未安装ordinal包，可取消注释运行
 # install.packages("MASS")       # MASS包常自带于基础R，无则执行此行
 # install.packages("brant")      # 若未安装brant包，用于Brant检验
-# install.packages("nnet")       # 若未安装nnet包，用于多项logit模型
+# install.packages("nnet") # 若未安装nnet包，用于多项logit模型
+# install.packages("brglm2") # 若未安装VGAM包，可取消注释运行
+# install.packages("svyVGAM") # 若未安装svyVGAM包，可取消注释运行
 library(ordinal)   # clm函数用于拟合累计链接模型（可指定部分比例优势）
 library(MASS)      # polr函数用于拟合PO模型
 library(brant)     # brant函数用于检验PO假设（Score检验法）
-library(nnet)      # multinom函数用于拟合无序多项Logit模型
+library(nnet)
+library(VGAM)# multinom函数用于拟合无序多项Logit模型
+library(survey)
+library(svyVGAM)# survey包用于处理复杂抽样设计数据
 
 # 读取RDS 数据（请将路径替换为实际文件位置）
-df <- readRDS("mydata.rds")
+df <- readRDS("df2_database.rds")
 
 # 查看因变量分布（各等级频数）
 table(df$HUIDCOG)
 
 ```
-fit 前先测 data
+
+#data 转换成可解释的版本
+```{r}
+## ---------- 通用设置 ----------
+# 统一把问卷里的非常见缺失码当成 NA（若出现）
+na_codes <- c(7, 8, 9, 96, 97, 98, 99)
+
+na_to_NA <- function(x) {
+  x_num <- suppressWarnings(as.numeric(as.character(x)))
+  x_num
+}
+
+## ---------- 2) DHH_SEX → 无序因子 ----------
+if ("DHH_SEX" %in% names(df)) {
+  df$DHH_SEX_DR <- factor(df$DHH_SEX, ordered = FALSE)
+}
+
+## ---------- 3) GEOGCMA2 → 无序因子 ----------
+if ("GEOGCMA2" %in% names(df)) {
+  df$GEOGCMA2_DR <- factor(df$GEOGCMA2, ordered = FALSE)
+}
+
+## ---------- 3) SSADEMO → integer ----------
+# 说明：直接取整为整数分数；若原本含小数则按四舍五入
+if ("SSADEMO" %in% names(df)) {
+  df$SSADEMO_DR <- as.integer(round(as.numeric(as.character(df$SSADEMO)), 0))
+}
+
+## ---------- 4) NUR_06 → “一天蔬果份数”（整数） ----------
+# 代码到份数：1=7, 2=6, 3=5, 4=4, 5=3, 6=2, 7=1；其余/未知 → NA
+if ("NUR_06" %in% names(df)) {
+  x <- na_to_NA(df$NUR_06)
+  map <- c("1"=7L, "2"=6L, "3"=5L, "4"=4L, "5"=3L, "6"=2L, "7"=1L)
+  df$NUR_06_DR <- as.integer(unname(map[as.character(x)]))
+}
+
+## ---------- 5) NUR_07 → “一天喝水杯数”（整数） ----------
+# 代码到杯数：1=8, 2=6, 3=3, 4=2, 5=1；其余/未知 → NA
+if ("NUR_07" %in% names(df)) {
+  x <- na_to_NA(df$NUR_07)
+  map <- c("1"=8L, "2"=6L, "3"=3L, "4"=2L, "5"=1L)
+  df$NUR_07_DR <- as.integer(unname(map[as.character(x)]))
+}
+
+## ---------- 6) GEN_02 → 反转后“越大越好”的有序因子 ----------
+# 原始 1..5 反转为 1..5（差序同构）：new = 6 - old；其余/未知 → NA
+if ("GEN_02" %in% names(df)) {
+  x <- na_to_NA(df$GEN_02)
+  revx <- ifelse(x %in% 1:5, 6 - x, NA)
+  df$GEN_02_DR <- factor(revx,
+                         levels = 1:5,
+                         labels = c("Poor","Fair","Good","Very good","Excellent"),
+                         ordered = TRUE)
+}
+
+## ---------- 7) GEN_01 → 反转后“越大越好”的有序因子 ----------
+# 原始 1..5 反转为 1..5：new = 6 - old；其余/未知 → NA
+if ("GEN_01" %in% names(df)) {
+  x <- na_to_NA(df$GEN_01)
+  revx <- ifelse(x %in% 1:5, 6 - x, NA)
+  df$GEN_01_DR <- factor(revx,
+                         levels = 1:5,
+                         labels = c("Poor","Fair","Good","Very good","Excellent"),
+                         ordered = TRUE)
+}
+
+## ---------- 8) GEOGCMA → 无序因子 ----------
+if ("GEOGCMA" %in% names(df)) {
+  df$GEOGCMA_DR <- factor(df$GEOGCMA, ordered = FALSE)
+}
+
+## ---------- 9) SMKDSTY → 1..6 反转“越大越频繁”的有序因子 ----------
+# 若原始为 1..6，则 new = 7 - old；其余/未知 → NA
+if ("SMKDSTY" %in% names(df)) {
+  x <- na_to_NA(df$SMKDSTY)
+  revx <- ifelse(x %in% 1:6, 7 - x, NA)
+  df$SMKDSTY_DR <- factor(revx, levels = 1:6, ordered = TRUE)
+}
+
+## ---------- 10) ALCDTTM → 1..3 反转“越大越频繁”的有序因子 ----------
+# 仅对 1..3 反转：new = 4 - old；其它码（如 7/8/9）设 NA
+if ("ALCDTTM" %in% names(df)) {
+  x <- na_to_NA(df$ALCDTTM)
+  revx <- ifelse(x %in% 1:3, 4 - x, NA)
+  df$ALCDTTM_DR <- factor(revx, levels = 1:3, ordered = TRUE)
+}
+
+## ---------- 可选：快速检查 ----------
+names(df)[endsWith(names(df), "_DR")]
+str(df[names(df)[endsWith(names(df), "_DR")]])
+```
+
 ```{r}
 # 检查响应变量类型
 str(df$HUIDCOG)
 table(df$HUIDCOG, useNA = "ifany")
+```
+#挑选变量
+```{r}
+## 1.1 先筛出分析样本（与你的 model_data 保持一致）
+y  <- "HUIDCOG"
+xs <- c("DHHGAGE","DHH_SEX_DR","EDUDH04","IN2GPER","PA2DSCR",
+        "SSADEMO_DR","NUR_06_DR","NUR_07_DR","GEN_01_DR","GEN_02_DR",
+        "DPSDSF","SLP_02","GEOGCMA2_DR","SPAGFRE","SMKDSTY_DR","ALCDTTM_DR","HWTGBMI")
+model_vars <- c(y, xs, "WTS_del")
+model_data <- na.omit(df[, model_vars])
+
+## 确保响应为有序因子（其余变量类型你已在前文妥善转换）
+model_data$HUIDCOG <- factor(model_data$HUIDCOG, ordered = TRUE)
+
+## 1.2 设计对象（只有主权重的情形）
+options(survey.lonely.psu = "adjust")   # 防极端情况；无聚类时也安全
+des <- svydesign(ids = ~1, weights = ~WTS_del, data = model_data)
+
+
+```
+#转non-ordered factor
+```{r}
+library(nnet)
+
+# 1) 把任何 ordered 的都降级成普通 factor（保险）
+model_data[] <- lapply(model_data, function(x) if (is.ordered(x)) factor(x, ordered = FALSE) else x)
+#但仍保留 COG 为 ordered factor
+model_data$HUIDCOG <-factor(model_data$HUIDCOG, ordered = TRUE)
+
+```
+#fit non-constrain model
+
+```{r}
+fo <- as.formula(
+  HUIDCOG ~ DHHGAGE + DHH_SEX_DR + EDUDH04 + IN2GPER + PA2DSCR +
+  SSADEMO_DR + NUR_06_DR + NUR_07_DR + GEN_01_DR + GEN_02_DR +
+  DPSDSF + SLP_02 + GEOGCMA2_DR + SPAGFRE + SMKDSTY_DR + ALCDTTM_DR + HWTGBMI
+)
+
+## 2.1 设计型 PO（所有变量满足比例优势）
+m_po <- svy_vglm(
+  fo, design = des,
+  family = VGAM::cumulative(link = "logitlink", parallel = )  # parallel=TRUE => PO
+)
+
+summary(m_po)                          # 设计型系数/SE/z/p
+OR_PO  <- exp(coef(m_po))              # 比值比
+CI_PO  <- exp(confint(m_po))           # 设计型 95% CI
+
 ```
 
 ```{r}
@@ -35,25 +192,52 @@ table(df$HUIDCOG, useNA = "ifany")
 # 自变量包括：年龄组(DHHGAGE)、性别(DHH_SEX)、教育(EDUDH04)、自评健康(GEN_01)
 # 权重为WTS_del
 # 提示: multinom 默认不输出p值，可通过summary计算近似标准误和z值
-multinom_model <- multinom(HUIDCOG ~ GEO_PRV + DHHGAGE + DHH_SEX + EDUDH04 + IN2GHH + IN2GPER + 
-                           PA2DSCR + PA2_01A + PA2_01BA + PA2_01BC + PA2_01BD + PA2_01BE + 
-                           PA2_01BF + PA2_01C + SSADEMO + NUR_06 + NUR_07 + FALG03 + GEN_02B + 
-                           GEN_01 + GEN_02 + SPAG01 + HWTGWTK + HWTGISW + DPSDSF + CCCD901 + 
-                           WTS_M + DPSDPP + DPS_02 + GEOGCMA2 + SLP_02 + ALC_1 + SPAGFRE + 
-                           HWTGBMI + SMKDSTY + ALCDTTM + DPS_23, 
-                           data = df, weights = WTS_del)
+# 当 iteration 较多时，可增加 maxit 参数 且当差值很小时，默认模型converge
+multinom_model <- multinom(HUIDCOG ~ .-WTS_del,
+                       data = model_data,maxit = 1000, weights = WTS_del)
+```
+
+#成功拿到unconstrained PPO model
+```{r}
 # 显示模型概要
 summary(multinom_model)
 
 ```
 
+note:2/11/2025
+
+1.已经完成uncontraint PPO model 拟合，接下来进行constrained PPO model 拟合
+2.查询 不用 order factor 会出现的问题
+3.整合过去所有的code使得整个file逻辑完整，可以reproduce
+
+#查一下数据不能过的原因
 ```{r}
-po_model <- polr(HUIDCOG ~ DHHGAGE + DHH_SEX + EDUDH04 + GEN_01,
- data = df, weights = WTS_del)
-summary(po_model) # 显示模型摘要
-# Brant检验：Score检验PO假设
-brant(po_model)
-# Nominal LRT检验：逐个检验加入Nominal效应的改进（似然比检验）
-nominal_test(po_model)
+library(brglm2)
+md<-model_data
+fml <- as.formula(HUIDCOG ~ DHHGAGE + EDUDH04 + IN2GPER + DHH_SEX_DR + GEOGCMA2_DR +
+                  SMKDSTY_DR + ALCDTTM_DR + GEN_01_DR + GEN_02_DR +
+                  SSADEMO_DR + DPSDSF + SLP_02 + HWTGBMI + NUR_06_DR + NUR_07_DR)
+
+lev <- levels(md$HUIDCOG)
+for (k in 2:length(lev)) {
+  yk <- as.numeric(md$HUIDCOG >= lev[k])  # 二分类阈值化
+  g  <- glm(fml, data = md, family = binomial(), weights = md$WTS_del)
+  cat("\n--- threshold: P(Y>=", lev[k-1], ") ---\n")
+  print(brglm2::detect_separation(g))
+}
+
+
+```
+
+#use mass - plor fit 完全PO (所有变量都follow 一个 trend)
+```{r}
+po_model <- clm(HUIDCOG ~ .-WTS_del,
+                data = model_data,
+                weights = WTS_del,
+                link = "logit",
+                Hess = TRUE)
+```
+
+```{r}
 ```
 
