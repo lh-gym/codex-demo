@@ -327,7 +327,7 @@ fit_PPO <- svy_vglm(form, design = des_ok,
 ```
 
 
-#检查自动推送11
+#检查自动推送2
 
 
 redo with dps
