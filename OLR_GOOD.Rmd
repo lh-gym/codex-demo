@@ -297,22 +297,57 @@ or: odd ratio
 # unconstrained model
 
 ```{r}
-fit_PPO <- svy_vglm(
-  form,
-  design = des_ok,
-  family = VGAM::cumulative(
+build_ppo <- function(maxit = 50, trace = TRUE, family_args = list()) {
+  fam_call <- c(list(
     parallel = FALSE,
-    link = "logitlink",
-    checkwz = FALSE
-  ),
-  control = VGAM::vglm.control(maxit = 50, trace = TRUE)
+    link = "logitlink"
+  ), family_args)
+
+  do.call(
+    svy_vglm,
+    c(
+      list(
+        form,
+        design = des_ok,
+        family = do.call(VGAM::cumulative, fam_call)
+      ),
+      if (!is.null(maxit)) list(control = VGAM::vglm.control(maxit = maxit, trace = trace)) else list()
+    )
+  )
+}
+
+ppo_attempts <- list(
+  list(maxit = 100, trace = FALSE, family_args = list()),
+  list(maxit = NULL, trace = FALSE, family_args = list())
 )
+
+fit_PPO <- NULL
+ppo_errors <- list()
+for (spec in ppo_attempts) {
+  fit_try <- try(do.call(build_ppo, spec), silent = TRUE)
+  if (!inherits(fit_try, "try-error")) {
+    fit_PPO <- fit_try
+    break
+  }
+  ppo_errors[[length(ppo_errors) + 1]] <- conditionMessage(attr(fit_try, "condition"))
+}
+
+if (is.null(fit_PPO)) {
+  cat("svy_vglm 所有尝试均失败，错误信息如下：\n")
+  print(ppo_errors)
+}
 ```
 
 summary with p value added
 
 ```{r}
-fit_effects <- if (!inherits(fit_olr, "try-error")) fit_olr else fit_PPO
+fit_effects <- if (!inherits(fit_olr, "try-error")) {
+  fit_olr
+} else if (!is.null(fit_PPO)) {
+  fit_PPO
+} else {
+  stop("svyolr 和 svy_vglm 均未成功收敛，详见前述错误信息。")
+}
 
 ctable <- coef(summary(fit_effects))
 p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
