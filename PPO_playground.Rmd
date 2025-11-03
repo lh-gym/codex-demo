@@ -5,15 +5,19 @@
 
 ## ⚙️ 需要的包
 
+
 ```{r}
 # 自动安装并加载所需包，保证 R Markdown 在新环境中也能顺利运行
-required_pkgs <- c("VGAM")
+required_pkgs <- c("VGAM", "dplyr", "tidyr", "ggplot2")
 missing_pkgs <- required_pkgs[!vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)]
 if (length(missing_pkgs)) {
   install.packages(missing_pkgs, repos = "https://cloud.r-project.org")
 }
 
 library(VGAM)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 set.seed(2025)
 ```
 
@@ -266,4 +270,98 @@ anova(m_PO, m7, type = 'I',test = "LR")
 
 ---
 
-如果你愿意，我可以把这段代码再**精简成一个函数**，输入你的数据框和想要的 `f_j`，自动拟合 (5)/(6)/(7) 并输出“有效斜率表 + LRT 对比”。你要我打包一下吗？
+---
+
+## 7) 使用 `fit_ppo()` 一键比较 PO vs PPO
+
+> 下面调用脚本里的 `fit_ppo()`，它已经把 Peterson (1990) 的思路打包成工程化 API。
+> 通过 `non_parallel` 指定哪些变量松弛平行性，或用 `fj_list` 指定变量的 f_j 模式。
+
+```{r}
+source("ppo_full_pipeline.R")  # 确保拿到最新函数
+
+# 拟合纯 PO、选择性 PPO（age、smoke 非平行）与变量特定 f_j 的 PPO
+fit_po <- fit_ppo(
+  dat,
+  response = Y,
+  predictors = c("age", "sex", "smoke"),
+  non_parallel = NULL
+)
+
+fit_partial <- fit_ppo(
+  dat,
+  response = Y,
+  predictors = c("age", "sex", "smoke"),
+  non_parallel = c("age", "smoke")
+)
+
+fit_trend <- fit_ppo(
+  dat,
+  response = Y,
+  predictors = c("age", "sex", "smoke"),
+  fj_list = list(
+    age = fj_age,
+    sex = fj_sex,
+    smoke = fj_smoke
+  ),
+  non_parallel = NULL
+)
+
+list(
+  PO = fit_po$predictor_info,
+  Selective_PPO = fit_partial$predictor_info,
+  Trend_PPO = fit_trend$predictor_info
+)
+```
+
+输出说明：
+
+* `predictor_info` 展示每个模型中变量的角色：`parallel`（严格平行）、`non_parallel`（完全放开）、`structured`（按 f_j 结构松弛）。
+* 默认 `keep_po = TRUE`，会把 PO 作为嵌套模型保存，方便做 LR 检验。
+
+---
+
+## 8) LR 平行性检验 & 有效斜率表
+
+```{r}
+# LR 检验（比较 PO vs 选择性 PPO）
+fit_partial$lr_test
+
+# 整理有效斜率，便于解释每个 cutpoint 的边际效应
+eff_partial <- fit_partial$effective_slopes
+eff_trend <- fit_trend$effective_slopes
+
+eff_partial
+eff_trend
+```
+
+输出说明：
+
+* `lr_test`：当 `non_parallel` 包含真实的非平行变量时，LR 检验通常显著，支持 Peterson (1990) 的“松弛平行性”假设。
+* `effective_slopes`：表中每行对应一个 cutpoint（j），值为 β + γ × f_j 或自由估计的斜率，直接对照我们设定的真值。
+
+---
+
+## 9) 可视化预测概率（可选）
+
+```{r}
+# 把预测概率整理成长数据框
+pred_df <- as.data.frame(fit_partial$fitted_probabilities) |>
+  mutate(obs = dplyr::row_number()) |>
+  pivot_longer(cols = !obs, names_to = "category", values_to = "prob")
+
+ggplot(pred_df, aes(x = category, y = prob)) +
+  geom_boxplot(fill = "steelblue", alpha = 0.6) +
+  labs(
+    title = "选择性 PPO 预测概率分布",
+    subtitle = "每个箱线图对应一个响应等级的条件概率",
+    x = "响应等级 (reverse = TRUE)",
+    y = "预测概率"
+  ) +
+  theme_minimal()
+```
+
+解释：
+
+* `fit_partial$fitted_probabilities` 直接来自 `VGAM::predict(..., type = "response")`；
+* 箱线图帮助识别某些 cutpoint 上的概率是否被过度约束，为诊断“平行性是否合适”提供直观依据。

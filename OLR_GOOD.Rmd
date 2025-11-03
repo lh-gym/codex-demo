@@ -1,0 +1,319 @@
+---
+title: "OLR_DPS"
+author: "linghan"
+date: "2025-10-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# 清空当前 R 环境
+rm(list = ls())
+
+# 清除控制台历史（可选）
+cat("\014")  # 等价于 Ctrl + L
+
+# 清理内存垃圾（可选，但推荐）
+gc()
+
+# 关闭所有图形设备（避免旧图残留）
+if(!is.null(dev.list())) dev.off()
+
+library(survey)
+
+dat<-read.csv("/Users/yelinghan/Desktop/data_real/CCHS_ready.csv")
+des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
+```
+factor everything
+```{r}
+for (v in names(des$variables)) {
+  x <- des$variables[[v]]
+  # 跳过 NA，再数唯一值
+  if (length(unique(na.omit(x))) > 50) {
+    message("跳过变量：", v, "（唯一值超过 50）")
+    next
+  }
+  cat("\n===== ", v, " =====\n")
+  print(svytable(as.formula(paste0("~", v)), design = des))
+}
+
+```
+```{r}
+threshold <- 50  # 唯一取值数阈值
+is_all_na <- function(x) all(is.na(x))
+
+make_ordered <- function(x) {
+  u <- unique(x[!is.na(x)])
+  if (length(u) == 0) return(x)  # 全NA就原样返回
+  if (is.numeric(x)) {
+    lv <- sort(u)                # 数值按大小排序
+  } else {
+    lv <- sort(as.character(u))  # 其余转字符再排序
+  }
+  factor(x, levels = lv, ordered = TRUE)
+}
+
+uniq_n <- sapply(dat, function(x) length(unique(x[!is.na(x)])))
+to_ord  <- names(uniq_n)[uniq_n > 0 & uniq_n < threshold & !sapply(dat, is_all_na)]
+
+dat[to_ord] <- lapply(dat[to_ord], make_ordered)
+
+# 查看哪些变量被转换了
+print(to_ord)
+# 检查：is.ordered(dat[[var]]) 应为 TRUE
+
+```
+
+
+```{r}
+library(survey)
+options(survey.lonely.psu = "adjust")  # 兜底单PSU
+```
+
+DPS
+```{}
+y  <- "DPSDSF"
+xs <- c("DHHGAGE","DHH_SEX","EDUDH04","IN2GPER","PA2DSCR",
+        "SSADEMO","NUR_06","NUR_07","GEN_01","GEN_02",
+        "HUIDCOG","SLP_02","GEOGCMA2","SPAGFRE","SMKDSTY",
+        "ALCDTTM","HWTGBMI")
+print("OK")
+```
+
+COG
+```{r}
+y  <- "HUIDCOG"
+xs <- c("DHHGAGE","DHH_SEX","EDUDH04","IN2GPER","PA2DSCR",
+        "SSADEMO","NUR_06","NUR_07","GEN_01","GEN_02",
+        "DPSDSF","SLP_02","GEOGCMA2","SPAGFRE","SMKDSTY",
+        "ALCDTTM","HWTGBMI")
+```
+
+#form: variables selection
+```{r}
+des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
+
+form <- as.formula(paste(y, "~", paste(xs, collapse=" + ")))
+```
+
+检查
+```{r}
+## ---------------- 诊断：是谁导致 singular? ----------------
+# 前置：你已有 y, xs, des, form
+need <- c(y, xs)
+
+# 0) 列名是否都存在
+missing <- setdiff(need, names(des$variables))
+if (length(missing)) {
+  cat("\n[缺列] 不存在的变量:\n"); print(missing)
+}
+
+# 1) 用公式构造 model.frame，并只看完整样本
+mf <- model.frame(form, data = des$variables, na.action = na.pass)
+ok <- complete.cases(mf)
+df <- des$variables[ok, , drop = FALSE]
+
+cat("\n[样本] 完整样本量:", nrow(df), "\n")
+
+# 2) 找“只有一个取值/常数列”的自变量
+oneval <- xs[sapply(df[xs], function(v) length(unique(v[!is.na(v)])) <= 1)]
+if (length(oneval)) {
+  cat("\n[常数或单水平] 只有1种取值的变量:\n"); print(oneval)
+}
+
+# 3) 因子存在“未出现的空水平”（levels 有，但该批样本中没数据）
+isfac <- sapply(df[xs], is.factor)
+fac_names <- names(isfac[isfac])
+empty_levels <- lapply(fac_names, function(v){
+  lv  <- levels(df[[v]])
+  obs <- sort(unique(as.character(df[[v]])))
+  setdiff(lv, obs)
+})
+names(empty_levels) <- fac_names
+empty_levels <- empty_levels[sapply(empty_levels, length) > 0]
+if (length(empty_levels)) {
+  cat("\n[空水平] 这些因子在完整样本里有未出现的 levels:\n")
+  print(empty_levels)
+}
+
+# 4) 构造模型矩阵，检查线性相关（秩亏/线性组合）
+mm <- model.matrix(form, data = df)  # 只含 X 的哑变量展开 + 截距
+cn <- colnames(mm)
+
+# 4a) 零方差列（常数列）
+zero_var_cols <- cn[apply(mm, 2, function(z) var(z) == 0)]
+if (length(zero_var_cols)) {
+  cat("\n[零方差列] 下列列恒定:\n"); print(zero_var_cols)
+}
+
+# 4b) 用 QR 分解找“线性相关列”
+qrmm <- qr(mm)
+r <- qrmm$rank
+if (r < ncol(mm)) {
+  keep_idx <- qrmm$pivot[seq_len(r)]
+  dep_idx  <- setdiff(seq_len(ncol(mm)), keep_idx)
+  dep_cols <- cn[dep_idx]
+
+  # 将列映射回原变量（assign 属性）
+  asg <- attr(mm, "assign")
+  terms_obj <- attr(mm, "terms")
+  term_labels <- attr(terms_obj, "term.labels")
+  dep_by_var <- split(dep_cols, term_labels[asg[dep_idx]])
+
+  cat("\n[线性相关] 这些列(哑变量)是线性组合/共线的：\n")
+  print(dep_by_var)
+
+  cat("\n[提示] 上述对应的原变量(项)可能互相重叠、编码完全一致或与其他变量线性相关；",
+      "可尝试：去掉其中一个变量、合并稀疏水平、或在建模前对因子 droplevels。\n", sep = "")
+} else {
+  cat("\n[线性相关] 未检测到列线性相关（矩阵满秩）。\n")
+}
+
+```
+
+```{r}
+mf  <- model.frame(form, data = des$variables, na.action = na.pass)
+ok  <- complete.cases(mf)
+dfu <- des$variables[ok, ]
+
+# 无权计数
+print(table(dfu$HUIDCOG, useNA = "ifany"))
+
+# 加权计数
+svytable(~ HUIDCOG, subset(des, ok))
+
+```
+#cog = 6 样本太少 故合并
+```{r}
+df <- des$variables
+df$HUIDCOG <- droplevels(df$HUIDCOG)
+df2 <- subset(df, HUIDCOG != tail(levels(df$HUIDCOG), 1))  # 去掉“Unable to remember”
+df2$HUIDCOG <- droplevels(df2$HUIDCOG)
+# 去掉空水平
+```
+
+```{}
+saveRDS(df2, "df2_database.rds")
+```
+
+#order 效果不好 去掉order 
+```{r}
+# 1) 把任何 ordered 的都降级成普通 factor（保险）
+df2[] <- lapply(df2, function(x) if (is.ordered(x)) factor(x, ordered = FALSE) else x)
+#但仍保留 COG 为 ordered factor
+df2$HUIDCOG <-factor(df2$HUIDCOG, ordered = TRUE)
+```
+
+```{r}
+des2 <- svydesign(ids=~1, weights=~WTS_del, data=df2, nest=TRUE)
+for (v in names(des2$variables)) {
+  x <- des2$variables[[v]]
+  # 跳过 NA，再数唯一值
+  if (length(unique(na.omit(x))) > 50) {
+    message("跳过变量：", v, "（唯一值超过 50）")
+    next
+  }
+  cat("\n===== ", v, " =====\n")
+  print(svytable(as.formula(paste0("~", v)), design = des2))
+}
+
+```
+#找出在某一个catergory 有零个数的变量 例：huidcog = 6 时间 没有任何一个 PA2DSCR = 2
+```{r}
+check_zero_cells <- function(y, v, des){
+  tab <- svytable(as.formula(paste0("~", y, "+", v)), des)
+  any(tab == 0)
+}
+bad_sep <- Filter(function(v) check_zero_cells(y, v, des2), xs)
+bad_sep
+
+```
+
+#测试一下是不是上述原因
+```{}
+xs2 <- setdiff(xs, bad_sep)  # 去掉这4个问题变量
+form2 <- as.formula(paste(y, "~", paste(xs2, collapse=" + ")))
+
+fit2 <- svyolr(form2, design = subset(des2, complete.cases(model.frame(form2, data = des2$variables))))
+summary(fit2)
+
+```
+
+#转一下变量形式，??? DPSDSF 可以转换成 numeric 吗 if 他是 score:
+```{}
+DPSDSF: Depression Scale Short Form
+
+  This variable assesses the depression level of respondents who felt depressed or lost interest in things for 2 weeks or more
+during the past 12 months. 
+  These include normal periods of sadness (for example, after the death of a loved one), as well as"serious" depression.
+  The items used to measure depression are based on the work of Kessler and Mroczek (from University of Michigan). 
+  They selected a subset of items from the Composite International Diagnostic Interview (CIDI) that measure major depressive episodes (MDE). 
+
+  The CIDI is a structure diagnostic instrument that was designed to produce diagnoses according to the definitions and the criteria of both DSM-lll-R and the Diagnostic Criteria for the Research of the ICD-10. The short-form of
+MDE used in the CCHS was developed to operationalize Criteria A through C of the DSM-III-R diagnosis of MDE. The
+diagnostic hierarchy rules defined in the Criterion D (not superimposed on schizophrenia, schizophrenia form disorder,
+delusional disorders, or psychotic disorders NOS) were ignored.
+
+Higher scores indicate higher level of depression.
+
+```
+
+#全部转换成num and redesign
+
+```{r}
+numeric_vars <- c("PA2DSCR", "SSADEMO", "DPSDSF", "HWTGBMI")
+des2$variables[numeric_vars] <- lapply(des2$variables[numeric_vars], function(x) as.numeric(as.character(x)))
+
+```
+
+
+```{r}
+mf <- model.frame(form, data = des2$variables, na.action = na.pass)
+ok <- complete.cases(mf)
+
+des_ok <- subset(des2, ok)
+des_ok$variables[] <- lapply(des_ok$variables, function(x) if (is.factor(x)) droplevels(x) else x)
+
+fit2 <- svyolr(form, design = des_ok)
+summary(fit2)
+```
+
+
+```{}
+fit2 <- svyolr(form, design = subset(des2, complete.cases(model.frame(form, data=des2$variables)))) 
+summary(fit2)
+
+```
+or: odd ratio
+
+summary with p value added
+```{r}
+ctable <- coef(summary(fit2))
+
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+
+## combined table
+(ctable <- cbind(ctable, "p value" = p))
+```
+
+在控制其他变量后，年龄每上升一个等级，进入更差认知等级的优势比约增加 94% =  (1-1.939)*100% 。
+
+```{r}
+co <- coef(fit2); se <- sqrt(diag(vcov(fit2))); z <- qnorm(0.975)
+
+round(cbind(OR=exp(co), `2.5%`=exp(co - z*se), `97.5%`=exp(co + z*se)), 3)
+
+```
+# unconstrained model
+
+```{r}
+fit_PPO <- svy_vglm(form, design = des_ok,
+                    family = VGAM::cumulative(parallel = FALSE, link = "logitlink"))
+```
+
+
+
+
+redo with dps
+
+
+
