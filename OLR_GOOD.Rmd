@@ -5,6 +5,11 @@ date: "2025-10-16"
 output: html_document
 ---
 
+```{}
+install.packages("gert")
+install.packages("rstudioapi")
+```
+
 ```{r setup, include=FALSE}
 # 清空当前 R 环境
 rm(list = ls())
@@ -23,7 +28,9 @@ library(survey)
 dat<-read.csv("/Users/yelinghan/Desktop/data_real/CCHS_ready.csv")
 des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
 ```
+
 factor everything
+
 ```{r}
 for (v in names(des$variables)) {
   x <- des$variables[[v]]
@@ -37,6 +44,7 @@ for (v in names(des$variables)) {
 }
 
 ```
+
 ```{r}
 threshold <- 50  # 唯一取值数阈值
 is_all_na <- function(x) all(is.na(x))
@@ -63,14 +71,14 @@ print(to_ord)
 
 ```
 
-
 ```{r}
 library(survey)
 options(survey.lonely.psu = "adjust")  # 兜底单PSU
 ```
 
 DPS
-```{}
+
+```         
 y  <- "DPSDSF"
 xs <- c("DHHGAGE","DHH_SEX","EDUDH04","IN2GPER","PA2DSCR",
         "SSADEMO","NUR_06","NUR_07","GEN_01","GEN_02",
@@ -80,6 +88,7 @@ print("OK")
 ```
 
 COG
+
 ```{r}
 y  <- "HUIDCOG"
 xs <- c("DHHGAGE","DHH_SEX","EDUDH04","IN2GPER","PA2DSCR",
@@ -89,6 +98,7 @@ xs <- c("DHHGAGE","DHH_SEX","EDUDH04","IN2GPER","PA2DSCR",
 ```
 
 #form: variables selection
+
 ```{r}
 des <- svydesign(ids=~1, weights=~WTS_del, data=dat, nest=TRUE)
 
@@ -96,6 +106,7 @@ form <- as.formula(paste(y, "~", paste(xs, collapse=" + ")))
 ```
 
 检查
+
 ```{r}
 ## ---------------- 诊断：是谁导致 singular? ----------------
 # 前置：你已有 y, xs, des, form
@@ -182,7 +193,9 @@ print(table(dfu$HUIDCOG, useNA = "ifany"))
 svytable(~ HUIDCOG, subset(des, ok))
 
 ```
+
 #cog = 6 样本太少 故合并
+
 ```{r}
 df <- des$variables
 df$HUIDCOG <- droplevels(df$HUIDCOG)
@@ -191,11 +204,12 @@ df2$HUIDCOG <- droplevels(df2$HUIDCOG)
 # 去掉空水平
 ```
 
-```{}
+```         
 saveRDS(df2, "df2_database.rds")
 ```
 
-#order 效果不好 去掉order 
+#order 效果不好 去掉order
+
 ```{r}
 # 1) 把任何 ordered 的都降级成普通 factor（保险）
 df2[] <- lapply(df2, function(x) if (is.ordered(x)) factor(x, ordered = FALSE) else x)
@@ -217,7 +231,9 @@ for (v in names(des2$variables)) {
 }
 
 ```
+
 #找出在某一个catergory 有零个数的变量 例：huidcog = 6 时间 没有任何一个 PA2DSCR = 2
+
 ```{r}
 check_zero_cells <- function(y, v, des){
   tab <- svytable(as.formula(paste0("~", y, "+", v)), des)
@@ -229,17 +245,18 @@ bad_sep
 ```
 
 #测试一下是不是上述原因
-```{}
+
+```         
 xs2 <- setdiff(xs, bad_sep)  # 去掉这4个问题变量
 form2 <- as.formula(paste(y, "~", paste(xs2, collapse=" + ")))
 
 fit2 <- svyolr(form2, design = subset(des2, complete.cases(model.frame(form2, data = des2$variables))))
 summary(fit2)
-
 ```
 
 #转一下变量形式，??? DPSDSF 可以转换成 numeric 吗 if 他是 score:
-```{}
+
+```         
 DPSDSF: Depression Scale Short Form
 
   This variable assesses the depression level of respondents who felt depressed or lost interest in things for 2 weeks or more
@@ -254,7 +271,6 @@ diagnostic hierarchy rules defined in the Criterion D (not superimposed on schiz
 delusional disorders, or psychotic disorders NOS) were ignored.
 
 Higher scores indicate higher level of depression.
-
 ```
 
 #全部转换成num and redesign
@@ -264,7 +280,6 @@ numeric_vars <- c("PA2DSCR", "SSADEMO", "DPSDSF", "HWTGBMI")
 des2$variables[numeric_vars] <- lapply(des2$variables[numeric_vars], function(x) as.numeric(as.character(x)))
 
 ```
-
 
 ```{r}
 mf <- model.frame(form, data = des2$variables, na.action = na.pass)
@@ -277,15 +292,15 @@ fit2 <- svyolr(form, design = des_ok)
 summary(fit2)
 ```
 
-
-```{}
+```         
 fit2 <- svyolr(form, design = subset(des2, complete.cases(model.frame(form, data=des2$variables)))) 
 summary(fit2)
-
 ```
+
 or: odd ratio
 
 summary with p value added
+
 ```{r}
 ctable <- coef(summary(fit2))
 
@@ -295,7 +310,7 @@ p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
 (ctable <- cbind(ctable, "p value" = p))
 ```
 
-在控制其他变量后，年龄每上升一个等级，进入更差认知等级的优势比约增加 94% =  (1-1.939)*100% 。
+在控制其他变量后，年龄每上升一个等级，进入更差认知等级的优势比约增加 94% = (1-1.939)\*100% 。
 
 ```{r}
 co <- coef(fit2); se <- sqrt(diag(vcov(fit2))); z <- qnorm(0.975)
@@ -303,6 +318,7 @@ co <- coef(fit2); se <- sqrt(diag(vcov(fit2))); z <- qnorm(0.975)
 round(cbind(OR=exp(co), `2.5%`=exp(co - z*se), `97.5%`=exp(co + z*se)), 3)
 
 ```
+
 # unconstrained model
 
 ```{r}
@@ -311,9 +327,6 @@ fit_PPO <- svy_vglm(form, design = des_ok,
 ```
 
 
-
+#检查自动推送11
 
 redo with dps
-
-
-
