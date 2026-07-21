@@ -11,7 +11,7 @@
 .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.72}h1{font-family:Georgia,"Songti SC",serif;font-weight:500;font-size:clamp(30px,5vw,52px);line-height:1.1;margin:10px 0 12px}.subtitle{margin:0;opacity:.82}
 .facts{display:flex;gap:18px;flex-wrap:wrap;margin-top:24px;font-size:13px;opacity:.9}.facts span{padding:6px 10px;border:1px solid rgba(255,255,255,.25);border-radius:999px}
 .shell{padding:28px 20px 70px}.player{position:sticky;top:12px;z-index:5;background:rgba(255,254,250,.94);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow)}
-audio{width:100%;display:block}.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}input[type=search]{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:white;font:inherit}
+audio{width:100%;display:block}.audio-status{display:block;margin:7px 2px 0;color:var(--muted);font-size:12px}.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}input[type=search]{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:white;font:inherit}
 .toggle{border:1px solid var(--line);background:white;border-radius:10px;padding:9px 11px;cursor:pointer;color:var(--ink)}.toggle.active{background:var(--ink);color:white;border-color:var(--ink)}
 .notice,.accuracy{margin:18px 2px;padding:12px 15px;border-left:3px solid #b36d35;background:#fff8ee;color:#5d4c3d;border-radius:0 10px 10px 0;font-size:14px}.accuracy{border-color:#9aa49f;background:#eeeee9;color:#5d6762}
 .legend{display:flex;gap:18px;margin:24px 2px 14px;font-size:13px;color:var(--muted)}.legend span{display:flex;align-items:center;gap:7px}.dot{width:9px;height:9px;border-radius:50%;background:currentColor;display:inline-block}
@@ -26,7 +26,7 @@ body.mode-en .zh{display:none}body.mode-zh .en{display:none}body.mode-zh .line.z
 <body>
 <header class="hero"><div class="hero-inner"><div class="eyebrow">Bilingual interview record</div><h1>Moneris 二轮面试｜双语转写</h1><p class="subtitle">Product Pricing Analyst · Interview transcript</p><div class="facts"><span>时长 33:39</span><span>角色：面试官 / 候选人</span><span>英文原文 + 中文翻译</span></div></div></header>
 <main class="shell">
-  <section class="player" aria-label="录音播放器与筛选工具"><audio id="audio" controls preload="metadata"><source src="___ Moneris 2nd round.m4a" type="audio/mp4">浏览器不支持音频播放。</audio>
+  <section class="player" aria-label="录音播放器与筛选工具"><audio id="audio" controls preload="metadata">浏览器不支持音频播放。</audio><span id="audio-status" class="audio-status" role="status" aria-live="polite">正在加载录音…</span>
     <div class="tools"><input id="search" type="search" placeholder="搜索英文或中文…" aria-label="搜索转写"><button class="toggle active" data-mode="both">双语</button><button class="toggle" data-mode="en">English</button><button class="toggle" data-mode="zh">中文</button></div>
   </section>
   <div class="accuracy">说明：本稿依据录音自动转写并经角色与专有名词校对；口音、重叠说话或音质可能造成少量误差，关键事实请回听录音确认。</div>
@@ -669,7 +669,9 @@ body.mode-en .zh{display:none}body.mode-zh .en{display:none}body.mode-zh .line.z
 </article></section><div id="empty" class="empty">没有匹配的内容。</div>
 </main>
 <script>
-const audio=document.getElementById('audio');document.querySelectorAll('.time').forEach(b=>b.addEventListener('click',()=>{audio.currentTime=Number(b.dataset.seek);audio.play();}));
+const audio=document.getElementById('audio'),audioStatus=document.getElementById('audio-status');
+const audioReady=(async()=>{try{const parts=Array.from({length:23},(_,i)=>`assets/audio/moneris/part-${String(i).padStart(3,'0')}.bin`);const buffers=await Promise.all(parts.map(async path=>{const response=await fetch(path);if(!response.ok)throw new Error(`${path}: ${response.status}`);return response.arrayBuffer();}));audio.src=URL.createObjectURL(new Blob(buffers,{type:'audio/mp4'}));audio.load();audioStatus.textContent='录音已就绪';}catch(error){console.error(error);audioStatus.textContent='录音加载失败，请刷新页面重试。';throw error;}})();
+document.querySelectorAll('.time').forEach(b=>b.addEventListener('click',async()=>{try{await audioReady;audio.currentTime=Number(b.dataset.seek);await audio.play();}catch(error){console.error(error);}}));
 document.querySelectorAll('.toggle').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.toggle').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.body.classList.remove('mode-en','mode-zh');if(b.dataset.mode!=='both')document.body.classList.add('mode-'+b.dataset.mode);}));
 const search=document.getElementById('search'),turns=[...document.querySelectorAll('.turn')],empty=document.getElementById('empty');search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();let shown=0;turns.forEach(t=>{const ok=!q||t.dataset.search.includes(q);t.classList.toggle('hidden',!ok);if(ok)shown++;});empty.classList.toggle('show',shown===0);});
 </script>
