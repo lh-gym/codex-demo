@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moneris 二轮面试｜双语转写</title>
+<style>
+:root{--ink:#17211d;--muted:#66716c;--paper:#f6f3ec;--card:#fffefa;--line:#dfe2dc;--i:#1d6d5b;--i-soft:#e5f1ed;--c:#9d5b24;--c-soft:#f7eadf;--shadow:0 16px 40px rgba(29,42,36,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65}
+.hero{padding:54px 24px 34px;background:linear-gradient(135deg,#173e35,#225f50 62%,#b36d35);color:white}.hero-inner,.shell{max-width:980px;margin:auto}
+.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.72}h1{font-family:Georgia,"Songti SC",serif;font-weight:500;font-size:clamp(30px,5vw,52px);line-height:1.1;margin:10px 0 12px}.subtitle{margin:0;opacity:.82}
+.facts{display:flex;gap:18px;flex-wrap:wrap;margin-top:24px;font-size:13px;opacity:.9}.facts span{padding:6px 10px;border:1px solid rgba(255,255,255,.25);border-radius:999px}
+.shell{padding:28px 20px 70px}.player{position:sticky;top:12px;z-index:5;background:rgba(255,254,250,.94);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow)}
+audio{width:100%;display:block}.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}input[type=search]{flex:1;min-width:220px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:white;font:inherit}
+.toggle{border:1px solid var(--line);background:white;border-radius:10px;padding:9px 11px;cursor:pointer;color:var(--ink)}.toggle.active{background:var(--ink);color:white;border-color:var(--ink)}
+.notice,.accuracy{margin:18px 2px;padding:12px 15px;border-left:3px solid #b36d35;background:#fff8ee;color:#5d4c3d;border-radius:0 10px 10px 0;font-size:14px}.accuracy{border-color:#9aa49f;background:#eeeee9;color:#5d6762}
+.legend{display:flex;gap:18px;margin:24px 2px 14px;font-size:13px;color:var(--muted)}.legend span{display:flex;align-items:center;gap:7px}.dot{width:9px;height:9px;border-radius:50%;background:currentColor;display:inline-block}
+#transcript{display:grid;gap:12px}.turn{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--i);border-radius:14px;padding:16px 18px;box-shadow:0 5px 18px rgba(29,42,36,.035)}.turn.speaker-c{border-left-color:var(--c)}
+.turn-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.role{display:flex;align-items:center;gap:7px;color:var(--i);font-weight:700;font-size:13px}.speaker-c .role{color:var(--c)}.role small{font-weight:500;opacity:.6;margin-left:2px}
+.time{border:0;background:transparent;color:var(--muted);font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;cursor:pointer;padding:4px 6px;border-radius:6px}.time:hover{background:#eceee9;color:var(--ink)}.line{margin:0}.line.en{font-size:15px;color:#34403a}.line.zh{font-size:16px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+body.mode-en .zh{display:none}body.mode-zh .en{display:none}body.mode-zh .line.zh{border-top:0;margin-top:0;padding-top:0}.turn.hidden{display:none}.empty{display:none;text-align:center;color:var(--muted);padding:40px}.empty.show{display:block}
+@media(max-width:640px){.hero{padding-top:38px}.shell{padding-left:12px;padding-right:12px}.player{top:6px}.turn{padding:14px}.tools{align-items:stretch}input[type=search]{width:100%;flex-basis:100%}}
+@media print{.hero{color:#111;background:white;padding:20px 0}.player,.tools,.accuracy{display:none}.shell{padding:0}.turn{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-inner"><div class="eyebrow">Bilingual interview record</div><h1>Moneris 二轮面试｜双语转写</h1><p class="subtitle">Product Pricing Analyst · Interview transcript</p><div class="facts"><span>时长 33:39</span><span>角色：面试官 / 候选人</span><span>英文原文 + 中文翻译</span></div></div></header>
+<main class="shell">
+  <section class="player" aria-label="录音播放器与筛选工具"><audio id="audio" controls preload="metadata"><source src="___ Moneris 2nd round.m4a" type="audio/mp4">浏览器不支持音频播放。</audio>
+    <div class="tools"><input id="search" type="search" placeholder="搜索英文或中文…" aria-label="搜索转写"><button class="toggle active" data-mode="both">双语</button><button class="toggle" data-mode="en">English</button><button class="toggle" data-mode="zh">中文</button></div>
+  </section>
+  <div class="accuracy">说明：本稿依据录音自动转写并经角色与专有名词校对；口音、重叠说话或音质可能造成少量误差，关键事实请回听录音确认。</div>
+  <div class="legend"><span style="color:var(--i)"><i class="dot"></i>面试官</span><span style="color:var(--c)"><i class="dot"></i>候选人</span></div>
+  <section id="transcript" aria-label="双语转写"><article class="turn speaker-i" data-search="good, how are you? 好，你好吗？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="0.00" aria-label="跳转到 00:00">00:00</button></div>
+  <p class="line en" lang="en">Good, how are you?</p>
+  <p class="line zh" lang="zh-CN">好，你好吗？</p>
+</article><article class="turn speaker-c" data-search="good as well. 很好。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1.42" aria-label="跳转到 00:01">00:01</button></div>
+  <p class="line en" lang="en">Good as well.</p>
+  <p class="line zh" lang="zh-CN">很好。</p>
+</article><article class="turn speaker-i" data-search="thank you for joining and taking the time, showing interest in this position. steve&#x27;s told me a lot about you. so i saw your profile and i was very interested to interview you. so i&#x27;m looking forward to, you know, getting to know you a little bit better in this next 30 to 45 minutes or so. maybe we could just get started with you telling me a little bit about yourself. i have a few questions lined up and then maybe i can give you a bit of an overview of what the position really is. and should you have any questions about that, we can, you know, take it away from there. so if you want to start off with telling me just a little bit about yourself, your experience, etc. 感谢加入并抽出时间来参加这个职位的面试。史蒂夫给我介绍了你很多。所以我看了你的资料，对面试你很感兴趣。我期待在接下来的30到45分钟里更了解你。也许我们可以从你先告诉我一些关于你自己开始。我有几个问题要问，然后我可以给你介绍一下这个职位的具体情况。如果你有任何关于职位的问题，我们可以从那里开始讨论。所以如果你愿意，可以先告诉我一些关于你自己和你的经历等。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="2.72" aria-label="跳转到 00:02">00:02</button></div>
+  <p class="line en" lang="en">Thank you for joining and taking the time, showing interest in this position. Steve&#x27;s told me a lot about you. So I saw your profile and I was very interested to interview you. So I&#x27;m looking forward to, you know, getting to know you a little bit better in this next 30 to 45 minutes or so. Maybe we could just get started with you telling me a little bit about yourself. I have a few questions lined up and then maybe I can give you a bit of an overview of what the position really is. And should you have any questions about that, we can, you know, take it away from there. So if you want to start off with telling me just a little bit about yourself, your experience, etc.</p>
+  <p class="line zh" lang="zh-CN">感谢加入并抽出时间来参加这个职位的面试。史蒂夫给我介绍了你很多。所以我看了你的资料，对面试你很感兴趣。我期待在接下来的30到45分钟里更了解你。也许我们可以从你先告诉我一些关于你自己开始。我有几个问题要问，然后我可以给你介绍一下这个职位的具体情况。如果你有任何关于职位的问题，我们可以从那里开始讨论。所以如果你愿意，可以先告诉我一些关于你自己和你的经历等。</p>
+</article><article class="turn speaker-c" data-search="yeah, so i have my university in university of toronto major in statistics. graduated in 2022. and currently i&#x27;m working in a local candle wholesale company called fuzzy candles. as a pricing analyst. well, my main responsibilities are to maximize profits by developing pricing strategies with sales and marketing team. and when graduating in 2022, i have an internship in my last year in online ai recruitment platform called jobster. as a data analyst intern. my main duty there was focused on data visualization, like develop dashboard on google cloud platform or tableau to visualize the job market data. and through all these experiences, i&#x27;ve developed strong skills in excel, sql, and tableau. i&#x27;m good at analyzing complex data. also have finance knowledge that helped me to analyze like profit margins and break-even analysis. and lastly, i&#x27;m extremely passionate about the product pricing analyst role in moneris. i think it&#x27;s a perfect fit for me. 是的，我在大学主修统计学，毕业于2022年。目前我在一家本地蜡烛批发公司fuzzy candles担任定价分析师。我的主要职责是通过与销售和营销团队开发定价策略来最大化利润。2022年毕业时，我在一家在线ai招聘平台jobster实习了一年，担任数据分析师实习生。我在那里的主要职责是数据可视化，比如在google cloud platform或tableau上开发仪表板来可视化劳动力市场数据。通过这些经历，我开发了很强的excel、sql和tableau技能。我擅长分析复杂数据，也有财务知识帮助我分析利润 margin 和盈亏平衡分析。最后，我对产品定价分析师角色在moneris非常热情，我认为这非常适合我。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="42.54" aria-label="跳转到 00:42">00:42</button></div>
+  <p class="line en" lang="en">Yeah, so I have my university in University of Toronto major in statistics. Graduated in 2022. And currently I&#x27;m working in a local candle wholesale company called Fuzzy Candles. As a pricing analyst. Well, my main responsibilities are to maximize profits by developing pricing strategies with sales and marketing team. And when graduating in 2022, I have an internship in my last year in online AI recruitment platform called Jobster. As a data analyst intern. My main duty there was focused on data visualization, like develop dashboard on Google Cloud Platform or Tableau to visualize the job market data. And through all these experiences, I&#x27;ve developed strong skills in Excel, SQL, and Tableau. I&#x27;m good at analyzing complex data. Also have finance knowledge that helped me to analyze like profit margins and break-even analysis. And lastly, I&#x27;m extremely passionate about the product pricing analyst role in Moneris. I think it&#x27;s a perfect fit for me.</p>
+  <p class="line zh" lang="zh-CN">是的，我在大学主修统计学，毕业于2022年。目前我在一家本地蜡烛批发公司Fuzzy Candles担任定价分析师。我的主要职责是通过与销售和营销团队开发定价策略来最大化利润。2022年毕业时，我在一家在线AI招聘平台Jobster实习了一年，担任数据分析师实习生。我在那里的主要职责是数据可视化，比如在Google Cloud Platform或Tableau上开发仪表板来可视化劳动力市场数据。通过这些经历，我开发了很强的Excel、SQL和Tableau技能。我擅长分析复杂数据，也有财务知识帮助我分析利润 margin 和盈亏平衡分析。最后，我对产品定价分析师角色在Moneris非常热情，我认为这非常适合我。</p>
+</article><article class="turn speaker-c" data-search="i&#x27;m very passionate about the payment industry. and we can see moneris everywhere, like from the restaurant, local merchant, everywhere when we are making a payment. so my current company is using, i think it&#x27;s using moneris payment system as well. so yeah, i will be very confident that my skills in excel pricing analyst and my background in statistics would like really contribute to the team. 我对支付行业非常热情。我们可以看到支付无处不在，比如在餐厅、本地商户，我们在支付的时候随处可见。我现在的公司也在使用某种支付系统，我想也是使用了moneris支付系统。所以我的技能和统计背景，特别是在moneris定价分析师方面的经验，我相信会对团队有很大的帮助。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="118.06" aria-label="跳转到 01:58">01:58</button></div>
+  <p class="line en" lang="en">I&#x27;m very passionate about the payment industry. And we can see Moneris everywhere, like from the restaurant, local merchant, everywhere when we are making a payment. So my current company is using, I think it&#x27;s using Moneris payment system as well. So yeah, I will be very confident that my skills in Excel pricing analyst and my background in statistics would like really contribute to the team.</p>
+  <p class="line zh" lang="zh-CN">我对支付行业非常热情。我们可以看到支付无处不在，比如在餐厅、本地商户，我们在支付的时候随处可见。我现在的公司也在使用某种支付系统，我想也是使用了Moneris支付系统。所以我的技能和统计背景，特别是在Moneris定价分析师方面的经验，我相信会对团队有很大的帮助。</p>
+</article><article class="turn speaker-i" data-search="right. amazing. i did say that you are currently a pricing analyst and you did mention. so this company, fuzzy candles, is it just like a wholesaler just for candles specifically? 好的。 太好了。你确实说你现在是定价分析师，也提到了。所以这家公司fuzzy candles，它是不是专门做蜡烛的批发商？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="146.44" aria-label="跳转到 02:26">02:26</button></div>
+  <p class="line en" lang="en">Right. Amazing. I did say that you are currently a pricing analyst and you did mention. So this company, Fuzzy Candles, is it just like a wholesaler just for candles specifically?</p>
+  <p class="line zh" lang="zh-CN">好的。 太好了。你确实说你现在是定价分析师，也提到了。所以这家公司Fuzzy Candles，它是不是专门做蜡烛的批发商？</p>
+</article><article class="turn speaker-c" data-search="they have some other categories, but mostly it&#x27;s focused on candles. 他们有一些其他的类别，但主要还是集中在蜡烛上。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="158.60" aria-label="跳转到 02:38">02:38</button></div>
+  <p class="line en" lang="en">They have some other categories, but mostly it&#x27;s focused on candles.</p>
+  <p class="line zh" lang="zh-CN">他们有一些其他的类别，但主要还是集中在蜡烛上。</p>
+</article><article class="turn speaker-i" data-search="yeah. okay. can you walk me a little bit with your day-to-day in your current role right now? like what your day-to-day looks like, what kind of jobs, your responsibilities, etc. 嗯。好的。你能给我详细介绍一下你现在的工作日常吗？比如你的一天是怎么度过的，你的具体职责是什么之类的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="163.26" aria-label="跳转到 02:43">02:43</button></div>
+  <p class="line en" lang="en">Yeah. Okay. Can you walk me a little bit with your day-to-day in your current role right now? Like what your day-to-day looks like, what kind of jobs, your responsibilities, etc.</p>
+  <p class="line zh" lang="zh-CN">嗯。好的。你能给我详细介绍一下你现在的工作日常吗？比如你的一天是怎么度过的，你的具体职责是什么之类的。</p>
+</article><article class="turn speaker-c" data-search="yeah. so most of my jobs was, so firstly, i have two main roles. the first one would be like ensure data consistency and data accuracy. we&#x27;re working with like different teams like sales, marketing, operation, logistic teams. and the second one is to create different pricing strategies for different wholesale orders to maximize profit, like by analyzing historical data and different customers. because we&#x27;re doing like custom wholesale candles. so it&#x27;s basically like different wholesale orders probably need to adjust the pricing strategy a little bit. 嗯。我的大部分工作是这样的，首先我有两个主要角色。第一个角色是确保数据的一致性和准确性，我们需要与销售、市场、运营和物流团队合作。第二个角色是为不同的批发订单创建不同的定价策略以最大化利润，比如通过分析历史数据和不同客户的行为。因为我们做的是定制的批发蜡烛，所以不同的批发订单可能需要稍微调整一下定价策略。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="173.54" aria-label="跳转到 02:53">02:53</button></div>
+  <p class="line en" lang="en">Yeah. So most of my jobs was, so firstly, I have two main roles. The first one would be like ensure data consistency and data accuracy. We&#x27;re working with like different teams like sales, marketing, operation, logistic teams. And the second one is to create different pricing strategies for different wholesale orders to maximize profit, like by analyzing historical data and different customers. Because we&#x27;re doing like custom wholesale candles. So it&#x27;s basically like different wholesale orders probably need to adjust the pricing strategy a little bit.</p>
+  <p class="line zh" lang="zh-CN">嗯。我的大部分工作是这样的，首先我有两个主要角色。第一个角色是确保数据的一致性和准确性，我们需要与销售、市场、运营和物流团队合作。第二个角色是为不同的批发订单创建不同的定价策略以最大化利润，比如通过分析历史数据和不同客户的行为。因为我们做的是定制的批发蜡烛，所以不同的批发订单可能需要稍微调整一下定价策略。</p>
+</article><article class="turn speaker-i" data-search="okay. and is it like, how does it work? like when you say you&#x27;re setting pricing strategies, is it for account-by-account basis? is it for certain segments or is it just for a line of candles? like how does it differ from the pricing strategies that you&#x27;re coming up with? 好。那它是怎么运作的呢？比如说你说设定价格策略，是针对每个客户吗？还是针对某些特定的客户群体，还是仅仅针对某种蜡烛产品线？这些价格策略和你正在制定的价格策略有什么不同吗？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="221.78" aria-label="跳转到 03:41">03:41</button></div>
+  <p class="line en" lang="en">Okay. And is it like, how does it work? Like when you say you&#x27;re setting pricing strategies, is it for account-by-account basis? Is it for certain segments or is it just for a line of candles? Like how does it differ from the pricing strategies that you&#x27;re coming up with?</p>
+  <p class="line zh" lang="zh-CN">好。那它是怎么运作的呢？比如说你说设定价格策略，是针对每个客户吗？还是针对某些特定的客户群体，还是仅仅针对某种蜡烛产品线？这些价格策略和你正在制定的价格策略有什么不同吗？</p>
+</article><article class="turn speaker-c" data-search="i&#x27;ll introduce the process a little bit more. so mostly it would be a sales team reach out to me. like for example, if it&#x27;s christmas season, we have different customers. like it could be from a local retail store or it could be like a wholesale order for like companies who want to like maybe give gifts. or it could be like for a staging company. so the sales team would reach out to me and say, oh, what products or what line the customer is looking for. like if they&#x27;re looking for like a more high-end line or if i&#x27;m looking for a more budget-friendly line, i will provide how many volumes they are looking for and i will provide like different strategies for them. 我会稍微介绍一下这个过程。主要是销售团队会联系我。比如在圣诞节期间，我们会面对不同的客户，可能是当地的零售店，也可能是想要送礼的公司，或者是道具公司。销售团队会联系我，询问客户想要什么产品或哪个系列。如果客户想要高端系列，或者想要性价比高的系列，我会提供他们需要的数量，并提供不同的策略建议。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="240.08" aria-label="跳转到 04:00">04:00</button></div>
+  <p class="line en" lang="en">I&#x27;ll introduce the process a little bit more. So mostly it would be a sales team reach out to me. Like for example, if it&#x27;s Christmas season, we have different customers. Like it could be from a local retail store or it could be like a wholesale order for like companies who want to like maybe give gifts. Or it could be like for a staging company. So the sales team would reach out to me and say, oh, what products or what line the customer is looking for. Like if they&#x27;re looking for like a more high-end line or if I&#x27;m looking for a more budget-friendly line, I will provide how many volumes they are looking for and I will provide like different strategies for them.</p>
+  <p class="line zh" lang="zh-CN">我会稍微介绍一下这个过程。主要是销售团队会联系我。比如在圣诞节期间，我们会面对不同的客户，可能是当地的零售店，也可能是想要送礼的公司，或者是道具公司。销售团队会联系我，询问客户想要什么产品或哪个系列。如果客户想要高端系列，或者想要性价比高的系列，我会提供他们需要的数量，并提供不同的策略建议。</p>
+</article><article class="turn speaker-i" data-search="got it. okay. so it depends on the, you&#x27;re basing it on the volumes and the, what the needs are and the type of, okay, got it. and you did mention that you work with sales, marketing, operations, logistics teams. so how much do you interact on a day-to-day basis with other teams, would you say? 明白了。好的。那得看具体的，你是根据需求和类型来决定的，对吧，明白了。你提到和销售、市场、运营、物流团队合作。那么你每天与这些团队互动多少呢？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="284.68" aria-label="跳转到 04:44">04:44</button></div>
+  <p class="line en" lang="en">Got it. Okay. So it depends on the, you&#x27;re basing it on the volumes and the, what the needs are and the type of, okay, got it. And you did mention that you work with sales, marketing, operations, logistics teams. So how much do you interact on a day-to-day basis with other teams, would you say?</p>
+  <p class="line zh" lang="zh-CN">明白了。好的。那得看具体的，你是根据需求和类型来决定的，对吧，明白了。你提到和销售、市场、运营、物流团队合作。那么你每天与这些团队互动多少呢？</p>
+</article><article class="turn speaker-c" data-search="i would say a lot. like, yeah. i connect with sales team a lot. and basically we have like week to week meetings for different customers with sales team, marketing team. yeah. and because it&#x27;s custom candles, we got to prepare like for holiday season. so i meet up with the marketing team a lot as well. 我会说很多。比如，是的。我经常和销售团队联系。基本上我们每周都会和销售团队、市场团队开会议谈不同的客户。因为是定制蜡烛，所以我们得为节假日准备，所以我经常和市场团队开会。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="304.24" aria-label="跳转到 05:04">05:04</button></div>
+  <p class="line en" lang="en">I would say a lot. Like, yeah. I connect with sales team a lot. And basically we have like week to week meetings for different customers with sales team, marketing team. Yeah. And because it&#x27;s custom candles, we got to prepare like for holiday season. So I meet up with the marketing team a lot as well.</p>
+  <p class="line zh" lang="zh-CN">我会说很多。比如，是的。我经常和销售团队联系。基本上我们每周都会和销售团队、市场团队开会议谈不同的客户。因为是定制蜡烛，所以我们得为节假日准备，所以我经常和市场团队开会。</p>
+</article><article class="turn speaker-i" data-search="okay. got it. and logistics. okay. yeah. is there, are there like project components in this? so i did say in your profile, like i was reading some of steve&#x27;s notes that you have one year of project management experience. was it in this role or your previous role? 好的。明白了。还有物流。好的。是的。这里面有没有像项目组件那样的东西？我之前在你的资料里看到，像是从史蒂夫的笔记里读到的，你有一年的项目管理经验。是在这个职位上还是在之前的职位上？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="329.64" aria-label="跳转到 05:29">05:29</button></div>
+  <p class="line en" lang="en">Okay. Got it. And logistics. Okay. Yeah. Is there, are there like project components in this? So I did say in your profile, like I was reading some of Steve&#x27;s notes that you have one year of project management experience. Was it in this role or your previous role?</p>
+  <p class="line zh" lang="zh-CN">好的。明白了。还有物流。好的。是的。这里面有没有像项目组件那样的东西？我之前在你的资料里看到，像是从史蒂夫的笔记里读到的，你有一年的项目管理经验。是在这个职位上还是在之前的职位上？</p>
+</article><article class="turn speaker-c" data-search="previous role in jobster, in the data analyst. 之前在jobster担任数据分析师的职位。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="346.32" aria-label="跳转到 05:46">05:46</button></div>
+  <p class="line en" lang="en">Previous role in Jobster, in the data analyst.</p>
+  <p class="line zh" lang="zh-CN">之前在Jobster担任数据分析师的职位。</p>
+</article><article class="turn speaker-i" data-search="got it. okay. can you expand a little bit about like what that project was, how you were involved? just so i get an idea of that. 好的。可以详细说说那个项目是什么，你是怎么参与进去的吗？这样我可以了解一下。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="350.88" aria-label="跳转到 05:50">05:50</button></div>
+  <p class="line en" lang="en">Got it. Okay. Can you expand a little bit about like what that project was, how you were involved? Just so I get an idea of that.</p>
+  <p class="line zh" lang="zh-CN">好的。可以详细说说那个项目是什么，你是怎么参与进去的吗？这样我可以了解一下。</p>
+</article><article class="turn speaker-c" data-search="so it was a career path prediction project. in the jobster&#x27;s data analyst role, most of my job was like visualizations using different platform. so in the career path prediction project, it&#x27;s like, first of all, to clean all of the data and then filtering by sqls and then provide a career path prediction to like all of the like new graduates to show them. or if you want to get into data analyst, what could, what&#x27;s your possibly promotion or if you want to transfer to another job, what could you possibly reach in a couple of years? yeah. so in that role, i was responsible to lead the team. 所以是一个职业路径预测项目。在数据分析师的职位上，我的大部分工作是使用不同的平台进行数据可视化。在职业路径预测项目中，首先是清理所有数据，然后通过特定条件筛选，然后为所有新毕业生提供职业路径预测，比如，如果你想成为一名数据分析师，你的可能晋升路径是什么，或者如果你想转到另一个职位，几年后你能达到什么？在那个角色上，我负责带领团队。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="357.22" aria-label="跳转到 05:57">05:57</button></div>
+  <p class="line en" lang="en">So it was a career path prediction project. In the Jobster&#x27;s data analyst role, most of my job was like visualizations using different platform. So in the career path prediction project, it&#x27;s like, first of all, to clean all of the data and then filtering by SQLs and then provide a career path prediction to like all of the like new graduates to show them. Or if you want to get into data analyst, what could, what&#x27;s your possibly promotion or if you want to transfer to another job, what could you possibly reach in a couple of years? Yeah. So in that role, I was responsible to lead the team.</p>
+  <p class="line zh" lang="zh-CN">所以是一个职业路径预测项目。在数据分析师的职位上，我的大部分工作是使用不同的平台进行数据可视化。在职业路径预测项目中，首先是清理所有数据，然后通过特定条件筛选，然后为所有新毕业生提供职业路径预测，比如，如果你想成为一名数据分析师，你的可能晋升路径是什么，或者如果你想转到另一个职位，几年后你能达到什么？在那个角色上，我负责带领团队。</p>
+</article><article class="turn speaker-i" data-search="okay. 好的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="410.12" aria-label="跳转到 06:50">06:50</button></div>
+  <p class="line en" lang="en">Okay.</p>
+  <p class="line zh" lang="zh-CN">好的。</p>
+</article><article class="turn speaker-c" data-search="and yeah, and i have like three to four team members. and i basically, me and my team like finished, like we first clean the data first and then like develop the visualization dashboard in the end with google data studio. 而且我有三到四个团队成员。我和我的团队基本上先清理数据，然后再开发可视化仪表盘。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="411.46" aria-label="跳转到 06:51">06:51</button></div>
+  <p class="line en" lang="en">And yeah, and I have like three to four team members. And I basically, me and my team like finished, like we first clean the data first and then like develop the visualization dashboard in the end with Google Data Studio.</p>
+  <p class="line zh" lang="zh-CN">而且我有三到四个团队成员。我和我的团队基本上先清理数据，然后再开发可视化仪表盘。</p>
+</article><article class="turn speaker-i" data-search="nice. and in that, like how long was this project? because this is part of your co-op position, right? 不错。那这个项目持续了多长时间？因为这是你实习的一部分，对吧？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="429.52" aria-label="跳转到 07:09">07:09</button></div>
+  <p class="line en" lang="en">Nice. And in that, like how long was this project? Because this is part of your co-op position, right?</p>
+  <p class="line zh" lang="zh-CN">不错。那这个项目持续了多长时间？因为这是你实习的一部分，对吧？</p>
+</article><article class="turn speaker-c" data-search="yeah, it&#x27;s my co-op is one year, but that project took really long. i would say like six to eight months. 嗯，我的实习是一年，但那个项目拖得 很 长。我大概估计花了六到八个月。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="435.72" aria-label="跳转到 07:15">07:15</button></div>
+  <p class="line en" lang="en">Yeah, it&#x27;s my co-op is one year, but that project took really long. I would say like six to eight months.</p>
+  <p class="line zh" lang="zh-CN">嗯，我的实习是一年，但那个项目拖得 很 长。我大概估计花了六到八个月。</p>
+</article><article class="turn speaker-i" data-search="oh, wow. 哦， 哇。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="444.00" aria-label="跳转到 07:24">07:24</button></div>
+  <p class="line en" lang="en">Oh, wow.</p>
+  <p class="line zh" lang="zh-CN">哦， 哇。</p>
+</article><article class="turn speaker-c" data-search="yeah, it&#x27;s a very long project. 是的，这是一个非常长的项目。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="444.62" aria-label="跳转到 07:24">07:24</button></div>
+  <p class="line en" lang="en">Yeah, it&#x27;s a very long project.</p>
+  <p class="line zh" lang="zh-CN">是的，这是一个非常长的项目。</p>
+</article><article class="turn speaker-i" data-search="what other, so in that project, like what other stakeholders were you working with? like were you still working with different teams or was it just a group of people, let&#x27;s say, you know, that were part of this project? 在那个项目中，你还和其他哪些利益相关方合作？你是仍然在和其他团队合作，还是说只是和这个项目的一部分人合作？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="447.58" aria-label="跳转到 07:27">07:27</button></div>
+  <p class="line en" lang="en">What other, so in that project, like what other stakeholders were you working with? Like were you still working with different teams or was it just a group of people, let&#x27;s say, you know, that were part of this project?</p>
+  <p class="line zh" lang="zh-CN">在那个项目中，你还和其他哪些利益相关方合作？你是仍然在和其他团队合作，还是说只是和这个项目的一部分人合作？</p>
+</article><article class="turn speaker-c" data-search="yeah, it&#x27;s basically me and my co-workers, but we report, we report to, we have like a monthly meeting to meet up with everybody in the company. so it&#x27;s like we have a meeting with everyone, but it&#x27;s basically we&#x27;re working together. 是的，基本上就是我和我的同事，但我们向公司里的其他人汇报工作，我们会有一个每月的会议，和公司里的每个人见面。所以我们和大家一起开会，但基本上我们是合作工作的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="458.98" aria-label="跳转到 07:38">07:38</button></div>
+  <p class="line en" lang="en">Yeah, it&#x27;s basically me and my co-workers, but we report, we report to, we have like a monthly meeting to meet up with everybody in the company. So it&#x27;s like we have a meeting with everyone, but it&#x27;s basically we&#x27;re working together.</p>
+  <p class="line zh" lang="zh-CN">是的，基本上就是我和我的同事，但我们向公司里的其他人汇报工作，我们会有一个每月的会议，和公司里的每个人见面。所以我们和大家一起开会，但基本上我们是合作工作的。</p>
+</article><article class="turn speaker-i" data-search="got it. okay. in any of your jobs, do you have any like presentation experience? you know, like you did the data visualization, a lot of that in your previous role. did you also have to talk to it or was it just like used by another person? 明白了。好的。在你的任何工作中，有没有像展示经验这样的经历？你知道，比如你在之前的工作中做了数据可视化，那你是需要讲解这些内容还是只是其他人使用这些内容？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="477.58" aria-label="跳转到 07:57">07:57</button></div>
+  <p class="line en" lang="en">Got it. Okay. In any of your jobs, do you have any like presentation experience? You know, like you did the data visualization, a lot of that in your previous role. Did you also have to talk to it or was it just like used by another person?</p>
+  <p class="line zh" lang="zh-CN">明白了。好的。在你的任何工作中，有没有像展示经验这样的经历？你知道，比如你在之前的工作中做了数据可视化，那你是需要讲解这些内容还是只是其他人使用这些内容？</p>
+</article><article class="turn speaker-c" data-search="so i always communicate with sales team and some of the times the sales team might not understand like what the data is because they don&#x27;t have the background. so that&#x27;s why i use like data visualization tool like tableau. i will show them in the dashboard like what possibly like like the revenue we could maximize like in the visualization and present the presentation to them, communicate with them as well. 所以我总是和销售团队沟通，有时候销售团队可能不明白数据是什么，因为他们没有背景知识。所以我使用像tableau这样的数据可视化工具，在仪表盘上展示给他们看，比如我们有可能最大化收入的可视化情况，并向他们展示和沟通这些信息。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="497.88" aria-label="跳转到 08:17">08:17</button></div>
+  <p class="line en" lang="en">So I always communicate with sales team and some of the times the sales team might not understand like what the data is because they don&#x27;t have the background. So that&#x27;s why I use like data visualization tool like Tableau. I will show them in the dashboard like what possibly like like the revenue we could maximize like in the visualization and present the presentation to them, communicate with them as well.</p>
+  <p class="line zh" lang="zh-CN">所以我总是和销售团队沟通，有时候销售团队可能不明白数据是什么，因为他们没有背景知识。所以我使用像Tableau这样的数据可视化工具，在仪表盘上展示给他们看，比如我们有可能最大化收入的可视化情况，并向他们展示和沟通这些信息。</p>
+</article><article class="turn speaker-i" data-search="okay. is this more like one-to-one presentation or like are you familiar with presenting in front of an audience as well? 好的。这是更像一对一的presentation还是你也熟悉在众人面前演讲？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="528.62" aria-label="跳转到 08:48">08:48</button></div>
+  <p class="line en" lang="en">Okay. Is this more like one-to-one presentation or like are you familiar with presenting in front of an audience as well?</p>
+  <p class="line zh" lang="zh-CN">好的。这是更像一对一的presentation还是你也熟悉在众人面前演讲？</p>
+</article><article class="turn speaker-c" data-search="with a team. 与团队合作。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="535.34" aria-label="跳转到 08:55">08:55</button></div>
+  <p class="line en" lang="en">With a team.</p>
+  <p class="line zh" lang="zh-CN">与团队合作。</p>
+</article><article class="turn speaker-i" data-search="with a team? 和团队一起？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="536.96" aria-label="跳转到 08:56">08:56</button></div>
+  <p class="line en" lang="en">With a team?</p>
+  <p class="line zh" lang="zh-CN">和团队一起？</p>
+</article><article class="turn speaker-c" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="537.36" aria-label="跳转到 08:57">08:57</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="do you like, do you enjoy that part? 你喜欢那部分吗？你喜欢做那部分工作吗？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="538.24" aria-label="跳转到 08:58">08:58</button></div>
+  <p class="line en" lang="en">Do you like, do you enjoy that part?</p>
+  <p class="line zh" lang="zh-CN">你喜欢那部分吗？你喜欢做那部分工作吗？</p>
+</article><article class="turn speaker-c" data-search="yeah. i enjoy most of my job. it&#x27;s super interesting. 嗯。我大部分时间都很享受我的工作，它超级有趣。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="539.96" aria-label="跳转到 08:59">08:59</button></div>
+  <p class="line en" lang="en">Yeah. I enjoy most of my job. It&#x27;s super interesting.</p>
+  <p class="line zh" lang="zh-CN">嗯。我大部分时间都很享受我的工作，它超级有趣。</p>
+</article><article class="turn speaker-i" data-search="actually, yeah, that was my next question. like what is in both your roles and in general, i guess, what is your favorite part about the job? like what do you enjoy doing the most and what do you least enjoy doing as well? 实际上，是的，那是我下一个要问的问题。比如在你的两个角色中，或者说一般而言，你最喜欢工作的哪一部分？你最享受做什么，最不喜欢做什么？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="544.58" aria-label="跳转到 09:04">09:04</button></div>
+  <p class="line en" lang="en">Actually, yeah, that was my next question. Like what is in both your roles and in general, I guess, what is your favorite part about the job? Like what do you enjoy doing the most and what do you least enjoy doing as well?</p>
+  <p class="line zh" lang="zh-CN">实际上，是的，那是我下一个要问的问题。比如在你的两个角色中，或者说一般而言，你最喜欢工作的哪一部分？你最享受做什么，最不喜欢做什么？</p>
+</article><article class="turn speaker-c" data-search="what i enjoy doing the most is actually in my fuzzy candles job. i really enjoy doing analyzed on like products. no matter it&#x27;s like physical products around us or it&#x27;s like digital products. i really enjoy analyzing it as like products. so i can see insights from our daily life. like, yeah. yeah. that&#x27;s why i&#x27;m looking for the product pricing analyst job in moneris as well. and what i don&#x27;t like. in the beginning, sometimes i have difficulties when like connecting with different team members. especially in the beginning, yeah. especially when the sales team come up to me, they&#x27;re always asking for deals. they&#x27;re asking, always asking for discount. and they&#x27;re asking, oh, if you have to give me like this discount or the customer will be gone. so in the beginning, i was super afraid of that. but as i got more suitable to the job, i found the way to communicate with the sales team. they just want their deal. 我最喜欢做的其实是我的 fuzzy candles 工作。我真的很喜欢对产品进行分析，无论是我们周围的具体产品还是数字产品。我真的很喜欢把它们当作产品来分析，这样可以从日常生活中看到一些洞察。所以，这就是为什么我正在寻找 moneris 的产品定价分析师职位。我不喜欢的是，在刚开始的时候，有时候我会遇到与不同团队成员沟通的困难。特别是在刚开始的时候，尤其是当销售团队来找我时，他们总是要求折扣。他们总是问我，如果你给我这个折扣，客户会不会就没了。刚开始的时候，我对此非常害怕。但随着我对工作的适应，我找到了与销售团队沟通的方法，他们只是想要他们的交易。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="557.94" aria-label="跳转到 09:17">09:17</button></div>
+  <p class="line en" lang="en">What I enjoy doing the most is actually in my fuzzy candles job. I really enjoy doing analyzed on like products. No matter it&#x27;s like physical products around us or it&#x27;s like digital products. I really enjoy analyzing it as like products. So I can see insights from our daily life. Like, yeah. Yeah. That&#x27;s why I&#x27;m looking for the product pricing analyst job in Moneris as well. And what I don&#x27;t like. In the beginning, sometimes I have difficulties when like connecting with different team members. Especially in the beginning, yeah. Especially when the sales team come up to me, they&#x27;re always asking for deals. They&#x27;re asking, always asking for discount. And they&#x27;re asking, oh, if you have to give me like this discount or the customer will be gone. So in the beginning, I was super afraid of that. But as I got more suitable to the job, I found the way to communicate with the sales team. They just want their deal.</p>
+  <p class="line zh" lang="zh-CN">我最喜欢做的其实是我的 Fuzzy Candles 工作。我真的很喜欢对产品进行分析，无论是我们周围的具体产品还是数字产品。我真的很喜欢把它们当作产品来分析，这样可以从日常生活中看到一些洞察。所以，这就是为什么我正在寻找 Moneris 的产品定价分析师职位。我不喜欢的是，在刚开始的时候，有时候我会遇到与不同团队成员沟通的困难。特别是在刚开始的时候，尤其是当销售团队来找我时，他们总是要求折扣。他们总是问我，如果你给我这个折扣，客户会不会就没了。刚开始的时候，我对此非常害怕。但随着我对工作的适应，我找到了与销售团队沟通的方法，他们只是想要他们的交易。</p>
+</article><article class="turn speaker-c" data-search="so maybe let&#x27;s have a meeting together with a marketing team, like to understand the marketing team&#x27;s request. and maybe i can propose the best pricing strategy to you. well, you could probably reach, i could probably help you to gain the customer as well. but maybe in a different pricing strategy. 所以 maybe 我们可以和市场团队开个会，了解一下他们的需求。我或许可以为你提出最优的定价策略。这样我们或许可以共同吸引客户，但可能需要不同的定价策略。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="639.68" aria-label="跳转到 10:39">10:39</button></div>
+  <p class="line en" lang="en">So maybe let&#x27;s have a meeting together with a marketing team, like to understand the marketing team&#x27;s request. And maybe I can propose the best pricing strategy to you. Well, you could probably reach, I could probably help you to gain the customer as well. But maybe in a different pricing strategy.</p>
+  <p class="line zh" lang="zh-CN">所以 maybe 我们可以和市场团队开个会，了解一下他们的需求。我或许可以为你提出最优的定价策略。这样我们或许可以共同吸引客户，但可能需要不同的定价策略。</p>
+</article><article class="turn speaker-i" data-search="right. and how did, like when you started applying that approach, how did that work out for you? like, was it a quick fix that you saw? or did it take you some time to kind of get to that level where you were able to, you know, sales is always going to be very aggressive in any company that you go. that&#x27;s a given, right? but like, did you find that approach worked well for you? 嗯。然后当你开始应用那种方法时，效果怎么样？比如，你是不是立刻就看到了效果？还是说你需要花一些时间才能达到那个水平，让你能够销售，销售在任何公司都是很激进的，这是一定的。但是，你发现那种方法对你有效吗？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="662.72" aria-label="跳转到 11:02">11:02</button></div>
+  <p class="line en" lang="en">Right. And how did, like when you started applying that approach, how did that work out for you? Like, was it a quick fix that you saw? Or did it take you some time to kind of get to that level where you were able to, you know, sales is always going to be very aggressive in any company that you go. That&#x27;s a given, right? But like, did you find that approach worked well for you?</p>
+  <p class="line zh" lang="zh-CN">嗯。然后当你开始应用那种方法时，效果怎么样？比如，你是不是立刻就看到了效果？还是说你需要花一些时间才能达到那个水平，让你能够销售，销售在任何公司都是很激进的，这是一定的。但是，你发现那种方法对你有效吗？</p>
+</article><article class="turn speaker-c" data-search="yeah, i find it slowly and slowly and it finally worked for me. as long as i find it&#x27;s not really about my communication to the sales team is important. but the most important thing is to find the most suitable pricing strategy for them. like, for example, if they want a super low deal, i could provide them with a volume-based pricing strategy. so as long as they reach a certain volume of the wholesale amount, we will still be given the discount. so i found as long as more as my pricing strategy skills increase and my communication skills increase, the better i feel more comfortable with talking to them. 嗯，我慢慢来，最后终于见效了。主要是我发现沟通销售团队不是最重要的，最重要的是找到最适合他们的定价策略。比如，如果他们想要非常低的折扣，我可以提供基于销量的定价策略。只要他们达到一定的批发量，我们就可以给他们折扣。我发现随着我的定价策略技巧和沟通技巧的提高，我感觉和他们交流越来越舒服了。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="687.34" aria-label="跳转到 11:27">11:27</button></div>
+  <p class="line en" lang="en">Yeah, I find it slowly and slowly and it finally worked for me. As long as I find it&#x27;s not really about my communication to the sales team is important. But the most important thing is to find the most suitable pricing strategy for them. Like, for example, if they want a super low deal, I could provide them with a volume-based pricing strategy. So as long as they reach a certain volume of the wholesale amount, we will still be given the discount. So I found as long as more as my pricing strategy skills increase and my communication skills increase, the better I feel more comfortable with talking to them.</p>
+  <p class="line zh" lang="zh-CN">嗯，我慢慢来，最后终于见效了。主要是我发现沟通销售团队不是最重要的，最重要的是找到最适合他们的定价策略。比如，如果他们想要非常低的折扣，我可以提供基于销量的定价策略。只要他们达到一定的批发量，我们就可以给他们折扣。我发现随着我的定价策略技巧和沟通技巧的提高，我感觉和他们交流越来越舒服了。</p>
+</article><article class="turn speaker-i" data-search="nice. and was there any situation in this role or the other role? i&#x27;m assuming it&#x27;s going to be more so in this role because you do work with sales a lot. but where there was a disagreement or you couldn&#x27;t get the, you know, there was a bit of a clash or, you know, just a difficult situation with another member of the team or a sales rep. and how did you, can you tell me a little bit about that and how you overcame it if you did? 很好。那在这份工作或之前的那份工作中，有没有什么情况？我猜会更多地发生在这一份工作中，因为你经常与销售团队合作。但有没有发生过意见不合，或者你无法说服某位团队成员或销售人员，或者遇到了一些棘手的情况。你能给我讲讲那件事以及你是如何解决的吗？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="746.60" aria-label="跳转到 12:26">12:26</button></div>
+  <p class="line en" lang="en">Nice. And was there any situation in this role or the other role? I&#x27;m assuming it&#x27;s going to be more so in this role because you do work with sales a lot. But where there was a disagreement or you couldn&#x27;t get the, you know, there was a bit of a clash or, you know, just a difficult situation with another member of the team or a sales rep. And how did you, can you tell me a little bit about that and how you overcame it if you did?</p>
+  <p class="line zh" lang="zh-CN">很好。那在这份工作或之前的那份工作中，有没有什么情况？我猜会更多地发生在这一份工作中，因为你经常与销售团队合作。但有没有发生过意见不合，或者你无法说服某位团队成员或销售人员，或者遇到了一些棘手的情况。你能给我讲讲那件事以及你是如何解决的吗？</p>
+</article><article class="turn speaker-c" data-search="so, there is one time when the sales team reached out to me. because we are, so it&#x27;s the first time for that specific sales to receive an order. i think it&#x27;s from a staging company for one of our like high-end product line. and the sales reached out to me because she wants a lower deal because she is worried if the, our price is too high so that it will hinder the ability to sell. and when we come up the meeting together with the marketing team, they feel that we should maintain the brand image and create differentiation from our regular line so that they don&#x27;t want to give up the, they give up the discount. and for me and my, and the finance team, we also don&#x27;t want to give up the discount easily because we want to maximize the profits. so, that time i come up with like tier pricing strategy. so, we will, we will offer volume-based discount exclusively to the staging company. and also, it will maintain the image and provide an incentive for the repeat purchases. 所以有一次销售团队联系到我。因为这是他们第一次收到那个特定销售的产品订单。我记得是从一个舞台搭建公司订购我们高端产品线中的一个产品。销售团队联系我，因为她担心我们的价格太高，可能会影响销售。当我们和市场团队一起开会时，他们觉得我们应该保持品牌形象，与常规产品线区分开来，所以他们不想提供折扣。而我和财务团队也不想轻易放弃折扣，因为我们想最大化利润。所以那次我提出了一种分层定价策略。我们将为舞台搭建公司提供基于数量的折扣，同时保持形象并激励重复购买。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="778.54" aria-label="跳转到 12:58">12:58</button></div>
+  <p class="line en" lang="en">So, there is one time when the sales team reached out to me. Because we are, so it&#x27;s the first time for that specific sales to receive an order. I think it&#x27;s from a staging company for one of our like high-end product line. And the sales reached out to me because she wants a lower deal because she is worried if the, our price is too high so that it will hinder the ability to sell. And when we come up the meeting together with the marketing team, they feel that we should maintain the brand image and create differentiation from our regular line so that they don&#x27;t want to give up the, they give up the discount. And for me and my, and the finance team, we also don&#x27;t want to give up the discount easily because we want to maximize the profits. So, that time I come up with like tier pricing strategy. So, we will, we will offer volume-based discount exclusively to the staging company. And also, it will maintain the image and provide an incentive for the repeat purchases.</p>
+  <p class="line zh" lang="zh-CN">所以有一次销售团队联系到我。因为这是他们第一次收到那个特定销售的产品订单。我记得是从一个舞台搭建公司订购我们高端产品线中的一个产品。销售团队联系我，因为她担心我们的价格太高，可能会影响销售。当我们和市场团队一起开会时，他们觉得我们应该保持品牌形象，与常规产品线区分开来，所以他们不想提供折扣。而我和财务团队也不想轻易放弃折扣，因为我们想最大化利润。所以那次我提出了一种分层定价策略。我们将为舞台搭建公司提供基于数量的折扣，同时保持形象并激励重复购买。</p>
+</article><article class="turn speaker-c" data-search="at any end, yeah, it balanced all of the needs for all of the team. and the customer was pleased with the pricing and placed a large order. 在任何一端， 是的，它平衡了团队的所有需求。客户对价格满意并下了大订单。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="862.94" aria-label="跳转到 14:22">14:22</button></div>
+  <p class="line en" lang="en">At any end, yeah, it balanced all of the needs for all of the team. And the customer was pleased with the pricing and placed a large order.</p>
+  <p class="line zh" lang="zh-CN">在任何一端， 是的，它平衡了团队的所有需求。客户对价格满意并下了大订单。</p>
+</article><article class="turn speaker-i" data-search="awesome. that&#x27;s a win for you for sure. in terms of your technical skills you mentioned, and also steve&#x27;s notes also kind of mentioned the sql and excel. can you elaborate how you work with these two on a day-to-day basis just so i understand the level with both excel and sql, how you use them today? 太棒了。那是你的一个胜利。关于你的技术技能，你提到的，还有史蒂夫的笔记也提到了sql和excel。你能详细说明一下你每天如何与这两者合作，以便我了解你如何在excel和sql的水平上使用它们？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="870.58" aria-label="跳转到 14:30">14:30</button></div>
+  <p class="line en" lang="en">Awesome. That&#x27;s a win for you for sure. In terms of your technical skills you mentioned, and also Steve&#x27;s notes also kind of mentioned the SQL and Excel. Can you elaborate how you work with these two on a day-to-day basis just so I understand the level with both Excel and SQL, how you use them today?</p>
+  <p class="line zh" lang="zh-CN">太棒了。那是你的一个胜利。关于你的技术技能，你提到的，还有史蒂夫的笔记也提到了SQL和Excel。你能详细说明一下你每天如何与这两者合作，以便我了解你如何在Excel和SQL的水平上使用它们？</p>
+</article><article class="turn speaker-c" data-search="so, in excel, i would definitely clean the data first after i like have any other data. and the more often i&#x27;ve used is the goal seek and solver to calculate like the break-even, to calculate the break-even point. or if i want the wholesale order to reach some specific revenue. or i would use vlookup to do analysis. if i&#x27;m reporting to different team, the other team, like i will do analysis on like which one is the best seller. and what kind of candle probably would that be? and i will create, if it&#x27;s like not a very difficult visualization, i will use excel to elaborate. so, i will use excel to do like pivot tables as well. 所以在excel，我会先把数据清理干净，然后再进行其他数据分析。我经常使用goal seek和solver来计算盈亏平衡点，或者如果我想让批发订单达到某个特定的收入。如果我要向不同的团队报告，我会分析哪个产品销量最好，哪种蜡烛可能最畅销。如果可视化不是特别复杂，我会使用vlookup来制作。我还会使用excel来做透视表。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="894.38" aria-label="跳转到 14:54">14:54</button></div>
+  <p class="line en" lang="en">So, in Excel, I would definitely clean the data first after I like have any other data. And the more often I&#x27;ve used is the Goal Seek and solver to calculate like the break-even, to calculate the break-even point. Or if I want the wholesale order to reach some specific revenue. Or I would use VLOOKUP to do analysis. If I&#x27;m reporting to different team, the other team, like I will do analysis on like which one is the best seller. And what kind of candle probably would that be? And I will create, if it&#x27;s like not a very difficult visualization, I will use Excel to elaborate. So, I will use Excel to do like pivot tables as well.</p>
+  <p class="line zh" lang="zh-CN">所以在Excel，我会先把数据清理干净，然后再进行其他数据分析。我经常使用Goal Seek和Solver来计算盈亏平衡点，或者如果我想让批发订单达到某个特定的收入。如果我要向不同的团队报告，我会分析哪个产品销量最好，哪种蜡烛可能最畅销。如果可视化不是特别复杂，我会使用VLOOKUP来制作。我还会使用Excel来做透视表。</p>
+</article><article class="turn speaker-i" data-search="okay. 好的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="970.36" aria-label="跳转到 16:10">16:10</button></div>
+  <p class="line en" lang="en">Okay.</p>
+  <p class="line zh" lang="zh-CN">好的。</p>
+</article><article class="turn speaker-c" data-search="yeah, that would basically be all for excel. 是的，基本上就是这些关于excel的内容。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="971.94" aria-label="跳转到 16:11">16:11</button></div>
+  <p class="line en" lang="en">Yeah, that would basically be all for Excel.</p>
+  <p class="line zh" lang="zh-CN">是的，基本上就是这些关于Excel的内容。</p>
+</article><article class="turn speaker-i" data-search="okay. 好的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="975.42" aria-label="跳转到 16:15">16:15</button></div>
+  <p class="line en" lang="en">Okay.</p>
+  <p class="line zh" lang="zh-CN">好的。</p>
+</article><article class="turn speaker-c" data-search="and the second one is sql. so, i&#x27;m using sql basically when i want to export the data into tableau to do like a visualization. i would use sql directly to like filter the data and the cleaner data. and, yeah. 第二个是sql。所以我用sql基本上是当我想要把数据导出到tableau来做可视化的时候。我会直接用sql来过滤数据和清理数据。嗯。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="975.68" aria-label="跳转到 16:15">16:15</button></div>
+  <p class="line en" lang="en">And the second one is SQL. So, I&#x27;m using SQL basically when I want to export the data into Tableau to do like a visualization. I would use SQL directly to like filter the data and the cleaner data. And, yeah.</p>
+  <p class="line zh" lang="zh-CN">第二个是SQL。所以我用SQL基本上是当我想要把数据导出到Tableau来做可视化的时候。我会直接用SQL来过滤数据和清理数据。嗯。</p>
+</article><article class="turn speaker-i" data-search="do you mainly like pull queries or that are already written? or are you good at, do you have an understanding of me building queries yourself as well when you understand the databases? 你更喜欢拉取查询还是已经有写好的查询？还是说你也能理解我自己构建查询的过程，特别是当我了解数据库的时候？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="994.54" aria-label="跳转到 16:34">16:34</button></div>
+  <p class="line en" lang="en">Do you mainly like pull queries or that are already written? Or are you good at, do you have an understanding of me building queries yourself as well when you understand the databases?</p>
+  <p class="line zh" lang="zh-CN">你更喜欢拉取查询还是已经有写好的查询？还是说你也能理解我自己构建查询的过程，特别是当我了解数据库的时候？</p>
+</article><article class="turn speaker-c" data-search="yeah. i would like use the basic queries to basically like filtering the data, but i know how to build the data as well. but basically like how to select, filter, to use the where function. yeah. 嗯。我想使用基本查询来进行数据过滤，但我也知道如何构建数据。基本上就是如何选择和过滤，使用where函数。嗯。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1006.18" aria-label="跳转到 16:46">16:46</button></div>
+  <p class="line en" lang="en">Yeah. I would like use the basic queries to basically like filtering the data, but I know how to build the data as well. But basically like how to select, filter, to use the where function. Yeah.</p>
+  <p class="line zh" lang="zh-CN">嗯。我想使用基本查询来进行数据过滤，但我也知道如何构建数据。基本上就是如何选择和过滤，使用where函数。嗯。</p>
+</article><article class="turn speaker-i" data-search="okay. so, if that&#x27;s what you do, do you have experience doing that in this position or your previous position? 好的。那么如果你这样做，你有没有在这一职位或之前的工作中做过类似的事情？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1024.52" aria-label="跳转到 17:04">17:04</button></div>
+  <p class="line en" lang="en">Okay. So, if that&#x27;s what you do, do you have experience doing that in this position or your previous position?</p>
+  <p class="line zh" lang="zh-CN">好的。那么如果你这样做，你有没有在这一职位或之前的工作中做过类似的事情？</p>
+</article><article class="turn speaker-c" data-search="both. but i got more practice in this position. 两者都有，但我在这个职位上练习得更多。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1029.96" aria-label="跳转到 17:09">17:09</button></div>
+  <p class="line en" lang="en">Both. But I got more practice in this position.</p>
+  <p class="line zh" lang="zh-CN">两者都有，但我在这个职位上练习得更多。</p>
+</article><article class="turn speaker-i" data-search="this position. okay. i got it. okay. that&#x27;s awesome. so, yeah. like excel, obviously it&#x27;s a day-to-day thing in this position for sure. almost, i would say. yeah. but sql comes in very handy because a lot of times we&#x27;re looking for historical data. and not every time, like you really need to understand the different data sets that we have. and i think you really need to get a deeper understanding to build your own queries to get a specific type of, because it&#x27;s not always the same thing. there&#x27;s always new products. we may need, you know, different types of information all the time. so, it&#x27;s not very set in stone that you need like five types of queries and you&#x27;re done with it. so, you know, new things come up. so, i&#x27;m looking for someone who does have that experience. tableau, we do have one person that does make tableau dashboards today, but i would like to get a little bit more into that, you know, for visualization purposes. and it seems like you do have good experience in that. 这个职位。好的。我明白了。太棒了。所以，嗯，像excel，显然这是一个日常工作的一部分，当然在这个职位上肯定如此。几乎是这样。是的。但是sql真的很有用，因为我们经常需要查找历史数据。并不是每次都需要，你真的需要理解我们拥有的不同数据集。我认为你需要更深入地了解，以便自己构建查询来获取特定类型的数据，因为这并不是总是固定不变的。总有新的产品，我们可能需要不同类型的信息。所以，你不需要总是使用五种类型的查询就万事俱备了。新的事情总是会出现。所以我寻找的是有这方面经验的人。tableau，我们确实有一个制作tableau仪表板的人，但我希望在这方面再多了解一些，你知道，为了可视化的目的。看来你在这方面确实有很好的经验。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1034.70" aria-label="跳转到 17:14">17:14</button></div>
+  <p class="line en" lang="en">This position. Okay. I got it. Okay. That&#x27;s awesome. So, yeah. Like Excel, obviously it&#x27;s a day-to-day thing in this position for sure. Almost, I would say. Yeah. But SQL comes in very handy because a lot of times we&#x27;re looking for historical data. And not every time, like you really need to understand the different data sets that we have. And I think you really need to get a deeper understanding to build your own queries to get a specific type of, because it&#x27;s not always the same thing. There&#x27;s always new products. We may need, you know, different types of information all the time. So, it&#x27;s not very set in stone that you need like five types of queries and you&#x27;re done with it. So, you know, new things come up. So, I&#x27;m looking for someone who does have that experience. Tableau, we do have one person that does make Tableau dashboards today, but I would like to get a little bit more into that, you know, for visualization purposes. And it seems like you do have good experience in that.</p>
+  <p class="line zh" lang="zh-CN">这个职位。好的。我明白了。太棒了。所以，嗯，像Excel，显然这是一个日常工作的一部分，当然在这个职位上肯定如此。几乎是这样。是的。但是SQL真的很有用，因为我们经常需要查找历史数据。并不是每次都需要，你真的需要理解我们拥有的不同数据集。我认为你需要更深入地了解，以便自己构建查询来获取特定类型的数据，因为这并不是总是固定不变的。总有新的产品，我们可能需要不同类型的信息。所以，你不需要总是使用五种类型的查询就万事俱备了。新的事情总是会出现。所以我寻找的是有这方面经验的人。Tableau，我们确实有一个制作Tableau仪表板的人，但我希望在这方面再多了解一些，你知道，为了可视化的目的。看来你在这方面确实有很好的经验。</p>
+</article><article class="turn speaker-i" data-search="so, that&#x27;s a great thing. in terms of, you&#x27;re located in toronto, right? 所以这是很好的事情。你位于多伦多，对吧？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1096.14" aria-label="跳转到 18:16">18:16</button></div>
+  <p class="line en" lang="en">So, that&#x27;s a great thing. In terms of, you&#x27;re located in Toronto, right?</p>
+  <p class="line zh" lang="zh-CN">所以这是很好的事情。你位于多伦多，对吧？</p>
+</article><article class="turn speaker-c" data-search="yes. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1101.80" aria-label="跳转到 18:21">18:21</button></div>
+  <p class="line en" lang="en">Yes.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="okay. i&#x27;m pretty sure steve must have mentioned as well, but it&#x27;s a two days a week right now coming into the office and the office is located at etobicoke. so, that&#x27;s fine for you, right? 好的。我猜steve也提到了，现在是每周来办公室两天，办公室地点是etobicoke。这样对你可以吗？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1102.76" aria-label="跳转到 18:22">18:22</button></div>
+  <p class="line en" lang="en">Okay. I&#x27;m pretty sure Steve must have mentioned as well, but it&#x27;s a two days a week right now coming into the office and the office is located at Etobicoke. So, that&#x27;s fine for you, right?</p>
+  <p class="line zh" lang="zh-CN">好的。我猜Steve也提到了，现在是每周来办公室两天，办公室地点是Etobicoke。这样对你可以吗？</p>
+</article><article class="turn speaker-c" data-search="that&#x27;s fine. 好的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1111.76" aria-label="跳转到 18:31">18:31</button></div>
+  <p class="line en" lang="en">That&#x27;s fine.</p>
+  <p class="line zh" lang="zh-CN">好的。</p>
+</article><article class="turn speaker-i" data-search="okay. awesome. we did talk about, okay. your biggest accomplishment so far, what would you say that is? 好。 太棒了. 你的最大成就是什么？你认为是什么？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1112.90" aria-label="跳转到 18:32">18:32</button></div>
+  <p class="line en" lang="en">Okay. Awesome. We did talk about, okay. Your biggest accomplishment so far, what would you say that is?</p>
+  <p class="line zh" lang="zh-CN">好。 太棒了. 你的最大成就是什么？你认为是什么？</p>
+</article><article class="turn speaker-c" data-search="do you mean my advantages? 你是说我的优点吗？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1124.30" aria-label="跳转到 18:44">18:44</button></div>
+  <p class="line en" lang="en">Do you mean my advantages?</p>
+  <p class="line zh" lang="zh-CN">你是说我的优点吗？</p>
+</article><article class="turn speaker-i" data-search="anything that you, any, it could be anything. so, i&#x27;ll let you interpret that. but in your workforce, in your career so far, is there anything that you&#x27;ve done that has made a difference or something that you feel that you&#x27;ve accomplished, like a task or a project or anything that you&#x27;ve done that you feel very proud about that you&#x27;d like to share? 在你的工作中，在你的职业生涯中，有没有做过什么让你觉得很有成就感的事情？比如一个任务、一个项目，或者任何你觉得值得分享的事情？你可以自己来解读这个“任何”。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1128.26" aria-label="跳转到 18:48">18:48</button></div>
+  <p class="line en" lang="en">Anything that you, any, it could be anything. So, I&#x27;ll let you interpret that. But in your workforce, in your career so far, is there anything that you&#x27;ve done that has made a difference or something that you feel that you&#x27;ve accomplished, like a task or a project or anything that you&#x27;ve done that you feel very proud about that you&#x27;d like to share?</p>
+  <p class="line zh" lang="zh-CN">在你的工作中，在你的职业生涯中，有没有做过什么让你觉得很有成就感的事情？比如一个任务、一个项目，或者任何你觉得值得分享的事情？你可以自己来解读这个“任何”。</p>
+</article><article class="turn speaker-c" data-search="sure. i will, i want to highlight my personality before i share the project. 当然。我想要先突出一下我的个性，然后再分享这个项目。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1150.44" aria-label="跳转到 19:10">19:10</button></div>
+  <p class="line en" lang="en">Sure. I will, I want to highlight my personality before I share the project.</p>
+  <p class="line zh" lang="zh-CN">当然。我想要先突出一下我的个性，然后再分享这个项目。</p>
+</article><article class="turn speaker-i" data-search="sure. that&#x27;s important. 当然。这是很重要的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1155.96" aria-label="跳转到 19:15">19:15</button></div>
+  <p class="line en" lang="en">Sure. That&#x27;s important.</p>
+  <p class="line zh" lang="zh-CN">当然。这是很重要的。</p>
+</article><article class="turn speaker-c" data-search="yeah. beside my skills, i&#x27;m actually a very like patient person. so, basically, i never like get into trouble with anybody. and if like anybody comes to me, i will like patiently and answering the question, get into what they are looking for and try to help them as, as much as possible. 嗯。除了我的技能，我还特别有耐心。所以基本上，我从不和任何人发生麻烦。如果有人来找我，我会耐心地回答问题，了解他们想要什么，并尽可能地帮助他们。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1157.12" aria-label="跳转到 19:17">19:17</button></div>
+  <p class="line en" lang="en">Yeah. Beside my skills, I&#x27;m actually a very like patient person. So, basically, I never like get into trouble with anybody. And if like anybody comes to me, I will like patiently and answering the question, get into what they are looking for and try to help them as, as much as possible.</p>
+  <p class="line zh" lang="zh-CN">嗯。除了我的技能，我还特别有耐心。所以基本上，我从不和任何人发生麻烦。如果有人来找我，我会耐心地回答问题，了解他们想要什么，并尽可能地帮助他们。</p>
+</article><article class="turn speaker-i" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1178.80" aria-label="跳转到 19:38">19:38</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-c" data-search="and also, i&#x27;m, i, for all of the skills like you mentioned, i think i&#x27;m already have experience in sql, but i believe moneris data would be much complicated than what i&#x27;m doing right now. i&#x27;m also very willing to learn and i&#x27;m extremely interested in my current position. so, it would be very fun for me. i will never get bored. yeah. so, my, about my project. i would introduce, so this christmas, christmas would be one of the biggest, busy season each year for candles. and before, so like that most, for most of the years, even if when i w i wasn&#x27;t working over there, we start christmas season in september and october. so, because we have to receive the orders and it&#x27;s most of the orders are custom. so, we have to receive the order first and make them make the order and package them. so, we start to receive a christmas order very early, like around september to october. 而且，我也拥有你提到的所有技能的经验，我认为我已经在sql方面有经验，但我相信moneris数据会比我目前做的复杂得多。我也非常愿意学习，我对目前的职位非常感兴趣。所以，这对我来说会非常有趣，我绝不会感到无聊。嗯，关于我的项目，我会介绍一下，所以每年圣诞节都是蜡烛销售最繁忙的季节之一。而且，通常在那几年，即使我不在那里工作，我们也会在九月和十月开始准备圣诞节的季节。因为我们需要接收订单，而且大多数订单都是定制的。所以我们需要在九月到十月就开始接收圣诞节的订单。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1179.82" aria-label="跳转到 19:39">19:39</button></div>
+  <p class="line en" lang="en">And also, I&#x27;m, I, for all of the skills like you mentioned, I think I&#x27;m already have experience in SQL, but I believe Moneris data would be much complicated than what I&#x27;m doing right now. I&#x27;m also very willing to learn and I&#x27;m extremely interested in my current position. So, it would be very fun for me. I will never get bored. Yeah. So, my, about my project. I would introduce, so this Christmas, Christmas would be one of the biggest, busy season each year for candles. And before, so like that most, for most of the years, even if when I w I wasn&#x27;t working over there, we start Christmas season in September and October. So, because we have to receive the orders and it&#x27;s most of the orders are custom. So, we have to receive the order first and make them make the order and package them. So, we start to receive a Christmas order very early, like around September to October.</p>
+  <p class="line zh" lang="zh-CN">而且，我也拥有你提到的所有技能的经验，我认为我已经在SQL方面有经验，但我相信Moneris数据会比我目前做的复杂得多。我也非常愿意学习，我对目前的职位非常感兴趣。所以，这对我来说会非常有趣，我绝不会感到无聊。嗯，关于我的项目，我会介绍一下，所以每年圣诞节都是蜡烛销售最繁忙的季节之一。而且，通常在那几年，即使我不在那里工作，我们也会在九月和十月开始准备圣诞节的季节。因为我们需要接收订单，而且大多数订单都是定制的。所以我们需要在九月到十月就开始接收圣诞节的订单。</p>
+</article><article class="turn speaker-c" data-search="but this year, i don&#x27;t know the reason, but probably because of economics and all of the customers seems to come to us as much later than before. so, and for example, if it&#x27;s mother&#x27;s day, they probably comes to us maybe in april, but usually they will come to us in march. so, it actually doesn&#x27;t represent they are not buying or we have less customers, but it just, we probably face a problem that when all of the order are get placed in the same period, like right before christmas, like say november, the amount of order might exceed our capacity. and the labor cost will increase like significantly because we have to pay like overtime salaries or like hire more contract workers. so, my responsibility before this christmas season was to solve the labor cost problem. so, what i do, i first revise the pricing model for potential cost increase and then collaborate with the operation team to optimize the possible labor allocation and production schedules. 但是今年，我也不知道具体原因，可能是经济方面的原因吧，客户的订单似乎比以前来得晚一些。比如说母亲节的订单，他们可能四月份才来，但通常都是三月份来的。所以这并不代表他们不买或者客户减少了，而是我们可能面临一个问题，就是所有订单都集中在同个时期，比如圣诞节前的十一月，订单量可能会超出我们的产能。劳动力成本也会显著增加，因为我们需要支付加班费或者雇佣更多的合同工。所以今年圣诞节前我的责任就是解决劳动力成本问题。我首先修订了定价模型以应对潜在的成本增加，然后和运营团队合作优化了劳动力分配和生产计划。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1253.46" aria-label="跳转到 20:53">20:53</button></div>
+  <p class="line en" lang="en">But this year, I don&#x27;t know the reason, but probably because of economics and all of the customers seems to come to us as much later than before. So, and for example, if it&#x27;s Mother&#x27;s Day, they probably comes to us maybe in April, but usually they will come to us in March. So, it actually doesn&#x27;t represent they are not buying or we have less customers, but it just, we probably face a problem that when all of the order are get placed in the same period, like right before Christmas, like say November, the amount of order might exceed our capacity. And the labor cost will increase like significantly because we have to pay like overtime salaries or like hire more contract workers. So, my responsibility before this Christmas season was to solve the labor cost problem. So, what I do, I first revise the pricing model for potential cost increase and then collaborate with the operation team to optimize the possible labor allocation and production schedules.</p>
+  <p class="line zh" lang="zh-CN">但是今年，我也不知道具体原因，可能是经济方面的原因吧，客户的订单似乎比以前来得晚一些。比如说母亲节的订单，他们可能四月份才来，但通常都是三月份来的。所以这并不代表他们不买或者客户减少了，而是我们可能面临一个问题，就是所有订单都集中在同个时期，比如圣诞节前的十一月，订单量可能会超出我们的产能。劳动力成本也会显著增加，因为我们需要支付加班费或者雇佣更多的合同工。所以今年圣诞节前我的责任就是解决劳动力成本问题。我首先修订了定价模型以应对潜在的成本增加，然后和运营团队合作优化了劳动力分配和生产计划。</p>
+</article><article class="turn speaker-c" data-search="and the second, i come up with a dynamic pricing model to show the sales and operation teams the maximum order we can finish within november and october. so, that it will give them an idea on when the order is too much and let them not come in to me in the middle of october, november asking for too many orders or too many deals. so, i also, i also have to create an early bird pricing strategy that we don&#x27;t usually have during christmas for the sales team so that they would be able to encourage our old customers to purchase earlier this year with the discount in the beginning of the christmas season. so, yeah, it&#x27;s a pricing model is a fact that we sold and i think this year we will be able to finish all of the orders, i think, a week ahead and we then take a rest of the christmas season. 第二个，我提出一个动态定价模型，向销售和运营团队展示我们可以在十一月和十月完成的最大订单量。这样可以让他们知道订单过多的情况，让他们在十月中下旬之前不要来找我要求太多订单或太多交易。我也需要为销售团队创建一个早期鸟定价策略，我们通常在圣诞节期间不会有的折扣，以便鼓励老客户在圣诞季开始时提前购买。所以，我认为今年我们可以在圣诞节前一周完成所有订单，然后休息一下圣诞季。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1335.00" aria-label="跳转到 22:15">22:15</button></div>
+  <p class="line en" lang="en">And the second, I come up with a dynamic pricing model to show the sales and operation teams the maximum order we can finish within November and October. So, that it will give them an idea on when the order is too much and let them not come in to me in the middle of October, November asking for too many orders or too many deals. So, I also, I also have to create an early bird pricing strategy that we don&#x27;t usually have during Christmas for the sales team so that they would be able to encourage our old customers to purchase earlier this year with the discount in the beginning of the Christmas season. So, yeah, it&#x27;s a pricing model is a fact that we sold and I think this year we will be able to finish all of the orders, I think, a week ahead and we then take a rest of the Christmas season.</p>
+  <p class="line zh" lang="zh-CN">第二个，我提出一个动态定价模型，向销售和运营团队展示我们可以在十一月和十月完成的最大订单量。这样可以让他们知道订单过多的情况，让他们在十月中下旬之前不要来找我要求太多订单或太多交易。我也需要为销售团队创建一个早期鸟定价策略，我们通常在圣诞节期间不会有的折扣，以便鼓励老客户在圣诞季开始时提前购买。所以，我认为今年我们可以在圣诞节前一周完成所有订单，然后休息一下圣诞季。</p>
+</article><article class="turn speaker-i" data-search="nice. so, it&#x27;s a bit of automation on your side with the pricing model that you built so that you get answers. 不错。所以你们那边有点自动化，你们建的定价模型可以自动给出答案。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1397.74" aria-label="跳转到 23:17">23:17</button></div>
+  <p class="line en" lang="en">Nice. So, it&#x27;s a bit of automation on your side with the pricing model that you built so that you get answers.</p>
+  <p class="line zh" lang="zh-CN">不错。所以你们那边有点自动化，你们建的定价模型可以自动给出答案。</p>
+</article><article class="turn speaker-c" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1404.80" aria-label="跳转到 23:24">23:24</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="okay. 好的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1405.60" aria-label="跳转到 23:25">23:25</button></div>
+  <p class="line en" lang="en">Okay.</p>
+  <p class="line zh" lang="zh-CN">好的。</p>
+</article><article class="turn speaker-c" data-search="about this year&#x27;s pattern. 今年的模式怎么样。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1406.36" aria-label="跳转到 23:26">23:26</button></div>
+  <p class="line en" lang="en">About this year&#x27;s pattern.</p>
+  <p class="line zh" lang="zh-CN">今年的模式怎么样。</p>
+</article><article class="turn speaker-i" data-search="okay. and in terms of this role, i don&#x27;t know how much detail steve shared with you, but i would say this is, so this role is, i know it says pricing product analyst and definitely there is pricing for the product. that is the big aspect. but it is a lot of project management as well, which is why i was trying to kind of get an understanding of what kind of projects and how you&#x27;re involved, how you&#x27;ve been involved in them. so, the way it works is, anytime there&#x27;s a new product launch or we&#x27;re trying to change up something about the product, maybe a little enhancement, whatever have you, there&#x27;s a project that takes place and then this pricing analyst product pricing analyst would be the resource assigned to that project, right? you&#x27;re then supposed to understand what the product is, the enhancements, the functionality features, do competitive benchmarking, create a costing model. 好的。至于这个职位，斯蒂夫可能没有给你太多细节，但我觉得这个职位主要是定价产品分析师。定价确实是主要的一部分。但还有很多项目管理的工作。这就是为什么我想了解一下你参与的项目类型和你是如何参与的。运作方式是这样的：每当有新产品推出，或者我们想要改变产品的某些方面，比如做一些小的改进，都会有一个项目进行。然后，这个定价分析师就会被分配到这个项目上，对吧？你需要了解产品、改进内容、功能特性，进行竞争基准分析，创建成本模型。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1409.32" aria-label="跳转到 23:29">23:29</button></div>
+  <p class="line en" lang="en">Okay. And in terms of this role, I don&#x27;t know how much detail Steve shared with you, but I would say this is, so this role is, I know it says pricing product analyst and definitely there is pricing for the product. That is the big aspect. But it is a lot of project management as well, which is why I was trying to kind of get an understanding of what kind of projects and how you&#x27;re involved, how you&#x27;ve been involved in them. So, the way it works is, anytime there&#x27;s a new product launch or we&#x27;re trying to change up something about the product, maybe a little enhancement, whatever have you, there&#x27;s a project that takes place and then this pricing analyst product pricing analyst would be the resource assigned to that project, right? You&#x27;re then supposed to understand what the product is, the enhancements, the functionality features, do competitive benchmarking, create a costing model.</p>
+  <p class="line zh" lang="zh-CN">好的。至于这个职位，斯蒂夫可能没有给你太多细节，但我觉得这个职位主要是定价产品分析师。定价确实是主要的一部分。但还有很多项目管理的工作。这就是为什么我想了解一下你参与的项目类型和你是如何参与的。运作方式是这样的：每当有新产品推出，或者我们想要改变产品的某些方面，比如做一些小的改进，都会有一个项目进行。然后，这个定价分析师就会被分配到这个项目上，对吧？你需要了解产品、改进内容、功能特性，进行竞争基准分析，创建成本模型。</p>
+</article><article class="turn speaker-i" data-search="you know, you get insights from marketing, you get insights from operations, logistics, so very cross-functional. and once you&#x27;re in this project, there&#x27;s usually like weekly, bi-weekly meetings, i would say. so, you&#x27;re in meetings with, you know, at least like 10 people at a time. so, some meetings will be virtual, some will be in person. so, it is very important for the person in this role to be comfortable with just people and be able to articulate their opinions or give feedback, etc. it&#x27;s not for, you know, some people just like to do the analytics, which is great, right? we need that too. but you also need to be like a people&#x27;s person in this role because you&#x27;re interacting with people. and i think that the people who are more successful in this role are the ones who can like build connections very easily with other departments to get information because not everything is very cookie cutter in this role, right? 你知道，你可以从市场得到见解，也可以从运营、物流得到见解，所以是非常跨职能的。一旦你进入这个项目，通常会有每周或每两周一次的会议。所以你会和至少十个人开会。有些会议是虚拟的，有些是面对面的。因此，这个职位的人需要非常舒适地与人交流，并能够清晰地表达自己的观点或提供反馈等。不是说有些人喜欢做分析，这很好，我们需要分析。但你也需要成为一个善于与人打交道的人，因为你需要与人互动。我认为在这个职位上更成功的人是那些能够很容易地与其他部门建立联系，获取信息的人，因为在这个职位上，不是一切都是一成不变的，对吧？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1468.38" aria-label="跳转到 24:28">24:28</button></div>
+  <p class="line en" lang="en">You know, you get insights from marketing, you get insights from operations, logistics, so very cross-functional. And once you&#x27;re in this project, there&#x27;s usually like weekly, bi-weekly meetings, I would say. So, you&#x27;re in meetings with, you know, at least like 10 people at a time. So, some meetings will be virtual, some will be in person. So, it is very important for the person in this role to be comfortable with just people and be able to articulate their opinions or give feedback, etc. It&#x27;s not for, you know, some people just like to do the analytics, which is great, right? We need that too. But you also need to be like a people&#x27;s person in this role because you&#x27;re interacting with people. And I think that the people who are more successful in this role are the ones who can like build connections very easily with other departments to get information because not everything is very cookie cutter in this role, right?</p>
+  <p class="line zh" lang="zh-CN">你知道，你可以从市场得到见解，也可以从运营、物流得到见解，所以是非常跨职能的。一旦你进入这个项目，通常会有每周或每两周一次的会议。所以你会和至少十个人开会。有些会议是虚拟的，有些是面对面的。因此，这个职位的人需要非常舒适地与人交流，并能够清晰地表达自己的观点或提供反馈等。不是说有些人喜欢做分析，这很好，我们需要分析。但你也需要成为一个善于与人打交道的人，因为你需要与人互动。我认为在这个职位上更成功的人是那些能够很容易地与其他部门建立联系，获取信息的人，因为在这个职位上，不是一切都是一成不变的，对吧？</p>
+</article><article class="turn speaker-i" data-search="so, it&#x27;s a lot of like information sharing, collaboration, that type of thing. and obviously, there&#x27;s a lot of admin work as well here, but i would say 50% project management and 25-25 split between analytical and admin. but yeah, like definitely you will be a ceremony with a lot of people. so, your presentation skills come handy as well as relationship building. and obviously, there&#x27;s a lot of exposure because, and it&#x27;s always something new because there&#x27;s always a new product, right? so, it keeps things very interesting. do you have any questions about the role specifically? we can dive in a little bit deeper into that and i can ask questions to you as well on those. 所以有很多信息分享和协作之类的事情。当然，这里也有很多行政工作，但我认为项目管理占50%，分析和行政各占25%。确实，你会和很多人打交道，所以你的演讲技巧和关系建立也很有用。而且很明显，这里有很多曝光机会，因为总是有新产品，对吧？所以事情总是很有趣。你对这个角色有什么具体问题吗？我们可以深入探讨一下，我也可以向你提问。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1524.92" aria-label="跳转到 25:24">25:24</button></div>
+  <p class="line en" lang="en">So, it&#x27;s a lot of like information sharing, collaboration, that type of thing. And obviously, there&#x27;s a lot of admin work as well here, but I would say 50% project management and 25-25 split between analytical and admin. But yeah, like definitely you will be a ceremony with a lot of people. So, your presentation skills come handy as well as relationship building. And obviously, there&#x27;s a lot of exposure because, and it&#x27;s always something new because there&#x27;s always a new product, right? So, it keeps things very interesting. Do you have any questions about the role specifically? We can dive in a little bit deeper into that and I can ask questions to you as well on those.</p>
+  <p class="line zh" lang="zh-CN">所以有很多信息分享和协作之类的事情。当然，这里也有很多行政工作，但我认为项目管理占50%，分析和行政各占25%。确实，你会和很多人打交道，所以你的演讲技巧和关系建立也很有用。而且很明显，这里有很多曝光机会，因为总是有新产品，对吧？所以事情总是很有趣。你对这个角色有什么具体问题吗？我们可以深入探讨一下，我也可以向你提问。</p>
+</article><article class="turn speaker-c" data-search="oh, i don&#x27;t have questions about the role. i think you&#x27;ve explained to me already. but yeah, i do have a question for you. 哦，我对这个角色没有问题。你已经给我解释过了。但确实，我有一个问题想问你。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1567.08" aria-label="跳转到 26:07">26:07</button></div>
+  <p class="line en" lang="en">Oh, I don&#x27;t have questions about the role. I think you&#x27;ve explained to me already. But yeah, I do have a question for you.</p>
+  <p class="line zh" lang="zh-CN">哦，我对这个角色没有问题。你已经给我解释过了。但确实，我有一个问题想问你。</p>
+</article><article class="turn speaker-i" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1575.58" aria-label="跳转到 26:15">26:15</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-c" data-search="so, like, i want to learn to the company&#x27;s culture a little bit more. like, what&#x27;s your favorite about the company? 所以我想要更多了解公司的文化。比如，你觉得公司最棒的是什么？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1575.72" aria-label="跳转到 26:15">26:15</button></div>
+  <p class="line en" lang="en">So, like, I want to learn to the company&#x27;s culture a little bit more. Like, what&#x27;s your favorite about the company?</p>
+  <p class="line zh" lang="zh-CN">所以我想要更多了解公司的文化。比如，你觉得公司最棒的是什么？</p>
+</article><article class="turn speaker-i" data-search="sure. so, my one favorite thing about the company is really the collaborative nature of people. so, there&#x27;s a lot of, nobody denies like a, you know, a quick coffee chat, whether you&#x27;re from another department or so. so, when i started in moneris, that was one thing that i did. in the first two weeks, i just booked a bunch of calls. i asked my boss for obviously a guidance on who to talk to and what would be useful. but everyone&#x27;s really collaborative. and we kind of come together and really problem solve. you know, there&#x27;s always problems or just like things that you need to figure out. but we&#x27;re really good at coming together and making things work. i will say it is a steep learning curve. usually people expect, you know, maybe like in a month or two, they&#x27;ll learn everything about what they&#x27;re expected to do or the position. it takes about six months, i would say. i&#x27;m going to be honest. 当然。我最喜欢公司的一点是人们协作的氛围。很多人都会进行快速的咖啡闲聊，无论你来自哪个部门。当我刚开始在moneris的时候，我做的第一件事就是在前两周里安排了很多次会议。我当然向我的主管寻求了指导，询问应该联系谁以及需要讨论什么内容。但每个人都很协作，我们能够聚在一起解决问题。你知道，总是会有问题或者需要解决的事情。但我们非常擅长团结起来，把事情做好。我要说的是，这是一个陡峭的学习曲线。通常人们以为，大概一个月或两个月后，他们就能掌握所有需要做的事情或职位要求。但实际上，我认为需要大约六个月的时间。我实话实说。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1584.28" aria-label="跳转到 26:24">26:24</button></div>
+  <p class="line en" lang="en">Sure. So, my one favorite thing about the company is really the collaborative nature of people. So, there&#x27;s a lot of, nobody denies like a, you know, a quick coffee chat, whether you&#x27;re from another department or so. So, when I started in Moneris, that was one thing that I did. In the first two weeks, I just booked a bunch of calls. I asked my boss for obviously a guidance on who to talk to and what would be useful. But everyone&#x27;s really collaborative. And we kind of come together and really problem solve. You know, there&#x27;s always problems or just like things that you need to figure out. But we&#x27;re really good at coming together and making things work. I will say it is a steep learning curve. Usually people expect, you know, maybe like in a month or two, they&#x27;ll learn everything about what they&#x27;re expected to do or the position. It takes about six months, I would say. I&#x27;m going to be honest.</p>
+  <p class="line zh" lang="zh-CN">当然。我最喜欢公司的一点是人们协作的氛围。很多人都会进行快速的咖啡闲聊，无论你来自哪个部门。当我刚开始在Moneris的时候，我做的第一件事就是在前两周里安排了很多次会议。我当然向我的主管寻求了指导，询问应该联系谁以及需要讨论什么内容。但每个人都很协作，我们能够聚在一起解决问题。你知道，总是会有问题或者需要解决的事情。但我们非常擅长团结起来，把事情做好。我要说的是，这是一个陡峭的学习曲线。通常人们以为，大概一个月或两个月后，他们就能掌握所有需要做的事情或职位要求。但实际上，我认为需要大约六个月的时间。我实话实说。</p>
+</article><article class="turn speaker-i" data-search="to just like really understand like what does moneris do as a whole, the products and, you know, what your role is. so, at times what i find is when someone joins, they could be a bit frustrated because they&#x27;re wanting to like learn everything and know everything very quickly, which is great. you know, you should come with that attitude. but definitely a lot of patience required because, you know, it&#x27;ll all make sense. it&#x27;ll all make sense. so definitely a bit, lots of patience required. but it&#x27;s a very great company to work for. yeah, a lot of it. very collaborative in nature, i would say. yeah. 为了真正理解moneris作为一个整体是怎么运作的，包括产品和你的角色。我发现有时候，当有人加入时，他们可能会有点沮丧，因为他们想尽快了解一切并掌握一切，这很好。你应该带着这样的态度来。但确实需要很多耐心，因为一切都会变得清晰。一切都会变得清晰。所以确实需要很多耐心。但这是一家非常好的公司工作。是的，有很多合作的性质。是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1639.20" aria-label="跳转到 27:19">27:19</button></div>
+  <p class="line en" lang="en">To just like really understand like what does Moneris do as a whole, the products and, you know, what your role is. So, at times what I find is when someone joins, they could be a bit frustrated because they&#x27;re wanting to like learn everything and know everything very quickly, which is great. You know, you should come with that attitude. But definitely a lot of patience required because, you know, it&#x27;ll all make sense. It&#x27;ll all make sense. So definitely a bit, lots of patience required. But it&#x27;s a very great company to work for. Yeah, a lot of it. Very collaborative in nature, I would say. Yeah.</p>
+  <p class="line zh" lang="zh-CN">为了真正理解Moneris作为一个整体是怎么运作的，包括产品和你的角色。我发现有时候，当有人加入时，他们可能会有点沮丧，因为他们想尽快了解一切并掌握一切，这很好。你应该带着这样的态度来。但确实需要很多耐心，因为一切都会变得清晰。一切都会变得清晰。所以确实需要很多耐心。但这是一家非常好的公司工作。是的，有很多合作的性质。是的。</p>
+</article><article class="turn speaker-c" data-search="i have a friend, i think. i don&#x27;t know about the person, but i think he&#x27;s probably working in moneris before. he said the same thing. he said, yeah, it&#x27;s a very good company. people are all very friendly, like collaborates and willing to help beyond. 我有一个朋友，我想他是我的朋友。我对这个人不太了解，但我想他之前可能在moneris工作过。他说也一样，他说是的，那家公司非常好。人们都非常友好，合作起来也很愿意互相帮助。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1676.40" aria-label="跳转到 27:56">27:56</button></div>
+  <p class="line en" lang="en">I have a friend, I think. I don&#x27;t know about the person, but I think he&#x27;s probably working in Moneris before. He said the same thing. He said, yeah, it&#x27;s a very good company. People are all very friendly, like collaborates and willing to help beyond.</p>
+  <p class="line zh" lang="zh-CN">我有一个朋友，我想他是我的朋友。我对这个人不太了解，但我想他之前可能在Moneris工作过。他说也一样，他说是的，那家公司非常好。人们都非常友好，合作起来也很愿意互相帮助。</p>
+</article><article class="turn speaker-i" data-search="for sure. 当然。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1692.98" aria-label="跳转到 28:12">28:12</button></div>
+  <p class="line en" lang="en">For sure.</p>
+  <p class="line zh" lang="zh-CN">当然。</p>
+</article><article class="turn speaker-c" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1693.56" aria-label="跳转到 28:13">28:13</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="i mean, like i&#x27;ve sat with people in the tech team sometimes and they&#x27;ve just given me lessons. 我意思是，有时候我会坐在技术团队旁边，他们会给我说课。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1693.70" aria-label="跳转到 28:13">28:13</button></div>
+  <p class="line en" lang="en">I mean, like I&#x27;ve sat with people in the tech team sometimes and they&#x27;ve just given me lessons.</p>
+  <p class="line zh" lang="zh-CN">我意思是，有时候我会坐在技术团队旁边，他们会给我说课。</p>
+</article><article class="turn speaker-c" data-search="oh. 哦。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1699.88" aria-label="跳转到 28:19">28:19</button></div>
+  <p class="line en" lang="en">Oh.</p>
+  <p class="line zh" lang="zh-CN">哦。</p>
+</article><article class="turn speaker-i" data-search="you know, they&#x27;re very good with giving their knowledge and sharing because it&#x27;s improvement for the whole company. 你知道，他们很好，乐于分享他们的知识，因为这对整个公司都是改进。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1700.44" aria-label="跳转到 28:20">28:20</button></div>
+  <p class="line en" lang="en">You know, they&#x27;re very good with giving their knowledge and sharing because it&#x27;s improvement for the whole company.</p>
+  <p class="line zh" lang="zh-CN">你知道，他们很好，乐于分享他们的知识，因为这对整个公司都是改进。</p>
+</article><article class="turn speaker-c" data-search="right. 对。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1707.60" aria-label="跳转到 28:27">28:27</button></div>
+  <p class="line en" lang="en">Right.</p>
+  <p class="line zh" lang="zh-CN">对。</p>
+</article><article class="turn speaker-i" data-search="so that&#x27;s why. so that&#x27;s what i love about the culture. and also, it&#x27;s a pricing analyst position, but the way i describe the pricing team. so our pricing team is under the finance department in our company. and obviously, you&#x27;re focusing on the pricing strategy, building that and doing competitive research. but there&#x27;s also like we&#x27;re like an octopus. we&#x27;re kind of involved in many different things. so we&#x27;ll have to interact with marketing a lot, operations a lot, legal, compliance. you know, we have a say in many things that you wouldn&#x27;t necessarily think that pricing gets a say in. so a lot of good exposure for sure. but you need to have a lot of patience. and there&#x27;s very like company specific knowledge that you need to gain as well. lots of acronyms. we love to use our acronyms. but all in all, it&#x27;s a fun place to work, i would say for sure. we&#x27;ve gone through some changes. but yeah, i enjoy working here. i&#x27;ve been here for six years or so. 所以这就是原因。这就是我喜欢公司文化的地方。而且，这是一个定价分析师的职位，但我是这样描述定价团队的。我们的定价团队在公司财务部门下。当然，你们会关注定价策略，制定并进行竞争研究。但其实我们就像一只八爪鱼，涉及很多不同的事情。我们会经常与市场部门打交道，与运营部门打交道，与法律和合规部门打交道。你知道，定价部门在很多方面都有发言权，你可能不会想到定价部门会参与这些事情。所以这是一个很好的曝光机会。但你需要很有耐心。你需要掌握很多公司特定的知识。我们有很多缩写，我们很喜欢用这些缩写。但总的来说，这是一个很好的工作场所，我确实很喜欢这里。我已经在这里工作了六年左右。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1707.84" aria-label="跳转到 28:27">28:27</button></div>
+  <p class="line en" lang="en">So that&#x27;s why. So that&#x27;s what I love about the culture. And also, it&#x27;s a pricing analyst position, but the way I describe the pricing team. So our pricing team is under the finance department in our company. And obviously, you&#x27;re focusing on the pricing strategy, building that and doing competitive research. But there&#x27;s also like we&#x27;re like an octopus. We&#x27;re kind of involved in many different things. So we&#x27;ll have to interact with marketing a lot, operations a lot, legal, compliance. You know, we have a say in many things that you wouldn&#x27;t necessarily think that pricing gets a say in. So a lot of good exposure for sure. But you need to have a lot of patience. And there&#x27;s very like company specific knowledge that you need to gain as well. Lots of acronyms. We love to use our acronyms. But all in all, it&#x27;s a fun place to work, I would say for sure. We&#x27;ve gone through some changes. But yeah, I enjoy working here. I&#x27;ve been here for six years or so.</p>
+  <p class="line zh" lang="zh-CN">所以这就是原因。这就是我喜欢公司文化的地方。而且，这是一个定价分析师的职位，但我是这样描述定价团队的。我们的定价团队在公司财务部门下。当然，你们会关注定价策略，制定并进行竞争研究。但其实我们就像一只八爪鱼，涉及很多不同的事情。我们会经常与市场部门打交道，与运营部门打交道，与法律和合规部门打交道。你知道，定价部门在很多方面都有发言权，你可能不会想到定价部门会参与这些事情。所以这是一个很好的曝光机会。但你需要很有耐心。你需要掌握很多公司特定的知识。我们有很多缩写，我们很喜欢用这些缩写。但总的来说，这是一个很好的工作场所，我确实很喜欢这里。我已经在这里工作了六年左右。</p>
+</article><article class="turn speaker-c" data-search="six years. 六年。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1768.60" aria-label="跳转到 29:28">29:28</button></div>
+  <p class="line en" lang="en">Six years.</p>
+  <p class="line zh" lang="zh-CN">六年。</p>
+</article><article class="turn speaker-i" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1769.66" aria-label="跳转到 29:29">29:29</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-c" data-search="that&#x27;s nice to hear. 听到这个消息很高兴。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1770.20" aria-label="跳转到 29:30">29:30</button></div>
+  <p class="line en" lang="en">That&#x27;s nice to hear.</p>
+  <p class="line zh" lang="zh-CN">听到这个消息很高兴。</p>
+</article><article class="turn speaker-i" data-search="six years in may. so i think the biggest shift, i&#x27;ve stayed in the pricing team, but the shift for me is i wasn&#x27;t a people manager. so i was the person who used to go into every project. we didn&#x27;t have that many projects before. oh. so the growth has really been in the product side in our company. and because there&#x27;s so many more projects, we definitely need more people. so now that i&#x27;ve become a people&#x27;s manager, like two, two and a half years ago. and i have a team of three now. this position will be fourth. oh. so we&#x27;re definitely, definitely expanding a lot. and it&#x27;s good to see. but yeah. like i think communication skills and just being open to speaking, articulating yourself properly, which i think some of the things that you mentioned with regards to data visualization, i think that was really interesting because, you know, in the finance team, people will understand the numbers. 五月份满六年了。我觉得最大的变化是我从不是人事经理，以前我经常参与每个项目。我们以前的项目不多。哦。所以产品方面的增长真的很大，我们公司。因为项目多了很多，我们确实需要更多的人。所以两年前我变成了人事经理。我现在有三个团队成员，这个职位将是第四个。哦。所以我们确实扩展了很多。看到这些变化很好。嗯。我认为沟通技巧和开放地表达自己是很重要的，这与你提到的数据可视化有些相似，你知道，在财务团队中，人们会理解数字。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1771.70" aria-label="跳转到 29:31">29:31</button></div>
+  <p class="line en" lang="en">Six years in May. So I think the biggest shift, I&#x27;ve stayed in the pricing team, but the shift for me is I wasn&#x27;t a people manager. So I was the person who used to go into every project. We didn&#x27;t have that many projects before. Oh. So the growth has really been in the product side in our company. And because there&#x27;s so many more projects, we definitely need more people. So now that I&#x27;ve become a people&#x27;s manager, like two, two and a half years ago. And I have a team of three now. This position will be fourth. Oh. So we&#x27;re definitely, definitely expanding a lot. And it&#x27;s good to see. But yeah. Like I think communication skills and just being open to speaking, articulating yourself properly, which I think some of the things that you mentioned with regards to data visualization, I think that was really interesting because, you know, in the finance team, people will understand the numbers.</p>
+  <p class="line zh" lang="zh-CN">五月份满六年了。我觉得最大的变化是我从不是人事经理，以前我经常参与每个项目。我们以前的项目不多。哦。所以产品方面的增长真的很大，我们公司。因为项目多了很多，我们确实需要更多的人。所以两年前我变成了人事经理。我现在有三个团队成员，这个职位将是第四个。哦。所以我们确实扩展了很多。看到这些变化很好。嗯。我认为沟通技巧和开放地表达自己是很重要的，这与你提到的数据可视化有些相似，你知道，在财务团队中，人们会理解数字。</p>
+</article><article class="turn speaker-i" data-search="they&#x27;ll understand a lot of things, but then you have to also share the same knowledge with sales, marketing, etc. and you have to cater to them in a way that, you know, they understand. 他们能理解很多事情，但你也必须与销售、营销等部门分享同样的知识，并以一种让他们能理解的方式来迎合他们。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1828.98" aria-label="跳转到 30:28">30:28</button></div>
+  <p class="line en" lang="en">They&#x27;ll understand a lot of things, but then you have to also share the same knowledge with sales, marketing, etc. And you have to cater to them in a way that, you know, they understand.</p>
+  <p class="line zh" lang="zh-CN">他们能理解很多事情，但你也必须与销售、营销等部门分享同样的知识，并以一种让他们能理解的方式来迎合他们。</p>
+</article><article class="turn speaker-c" data-search="mm-hmm. 嗯。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1839.02" aria-label="跳转到 30:39">30:39</button></div>
+  <p class="line en" lang="en">Mm-hmm.</p>
+  <p class="line zh" lang="zh-CN">嗯。</p>
+</article><article class="turn speaker-i" data-search="so i think visualization of data definitely really helps. that&#x27;s a good, that&#x27;s a great point that you have. 所以我认为数据可视化确实很有帮助。你这一点说得好，说得很棒。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1839.66" aria-label="跳转到 30:39">30:39</button></div>
+  <p class="line en" lang="en">So I think visualization of data definitely really helps. That&#x27;s a good, that&#x27;s a great point that you have.</p>
+  <p class="line zh" lang="zh-CN">所以我认为数据可视化确实很有帮助。你这一点说得好，说得很棒。</p>
+</article><article class="turn speaker-c" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1848.78" aria-label="跳转到 30:48">30:48</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="what else do i want to know about you? what&#x27;s your timeline in terms of, so you are currently working here at fuzzy candles. what&#x27;s, i think there was a note on the move, but what is making you look for another job right now? 你还想了解我什么？你目前在这里工作，有什么打算吗？我想之前有提到过离职的事，但你现在为什么想要换工作呢？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1849.84" aria-label="跳转到 30:49">30:49</button></div>
+  <p class="line en" lang="en">What else do I want to know about you? What&#x27;s your timeline in terms of, so you are currently working here at Fuzzy Candles. What&#x27;s, I think there was a note on the move, but what is making you look for another job right now?</p>
+  <p class="line zh" lang="zh-CN">你还想了解我什么？你目前在这里工作，有什么打算吗？我想之前有提到过离职的事，但你现在为什么想要换工作呢？</p>
+</article><article class="turn speaker-c" data-search="oh, so currently i&#x27;m only working with like physical products, but i&#x27;m interested in all of the products. and moneris is doing with dealing with digital products and services as well. that&#x27;s why i want to get to learn more about different products. 哦，我现在只在处理实物产品，但我对所有产品都感兴趣。而且moneris也在处理数字产品和服务，这就是为什么我想了解更多不同类型的产品。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1866.80" aria-label="跳转到 31:06">31:06</button></div>
+  <p class="line en" lang="en">Oh, so currently I&#x27;m only working with like physical products, but I&#x27;m interested in all of the products. And Moneris is doing with dealing with digital products and services as well. That&#x27;s why I want to get to learn more about different products.</p>
+  <p class="line zh" lang="zh-CN">哦，我现在只在处理实物产品，但我对所有产品都感兴趣。而且Moneris也在处理数字产品和服务，这就是为什么我想了解更多不同类型的产品。</p>
+</article><article class="turn speaker-i" data-search="okay. and where do you like, right now you have data analyst experience and you&#x27;re, you have pricing experience as well. where do you see yourself, like where do you want to take your career in the, maybe the next three to five years? like which direction are you? 好。你现在有数据分析师的经验，也有定价方面的经验。你在未来三到五年内想往哪个方向发展career呢？你想往哪个方向走呢？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1886.62" aria-label="跳转到 31:26">31:26</button></div>
+  <p class="line en" lang="en">Okay. And where do you like, right now you have data analyst experience and you&#x27;re, you have pricing experience as well. Where do you see yourself, like where do you want to take your career in the, maybe the next three to five years? Like which direction are you?</p>
+  <p class="line zh" lang="zh-CN">好。你现在有数据分析师的经验，也有定价方面的经验。你在未来三到五年内想往哪个方向发展career呢？你想往哪个方向走呢？</p>
+</article><article class="turn speaker-c" data-search="i actually don&#x27;t want to be too analytical. 我其实不想太分析。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1902.32" aria-label="跳转到 31:42">31:42</button></div>
+  <p class="line en" lang="en">I actually don&#x27;t want to be too analytical.</p>
+  <p class="line zh" lang="zh-CN">我其实不想太分析。</p>
+</article><article class="turn speaker-i" data-search="okay. 好的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1905.82" aria-label="跳转到 31:45">31:45</button></div>
+  <p class="line en" lang="en">Okay.</p>
+  <p class="line zh" lang="zh-CN">好的。</p>
+</article><article class="turn speaker-c" data-search="i, yeah, i enjoy the time talking with different people and the dealing with different teams. so i would say like pricing or yeah. 我，嗯，我喜欢和不同的人聊天以及处理不同的团队。可以说定价或者嗯。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1906.98" aria-label="跳转到 31:46">31:46</button></div>
+  <p class="line en" lang="en">I, yeah, I enjoy the time talking with different people and the dealing with different teams. So I would say like pricing or yeah.</p>
+  <p class="line zh" lang="zh-CN">我，嗯，我喜欢和不同的人聊天以及处理不同的团队。可以说定价或者嗯。</p>
+</article><article class="turn speaker-i" data-search="okay. 好的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1917.28" aria-label="跳转到 31:57">31:57</button></div>
+  <p class="line en" lang="en">Okay.</p>
+  <p class="line zh" lang="zh-CN">好的。</p>
+</article><article class="turn speaker-c" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1918.02" aria-label="跳转到 31:58">31:58</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="so you, you don&#x27;t want to continue in this room. 所以你不想继续在这间房间里面了。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1918.22" aria-label="跳转到 31:58">31:58</button></div>
+  <p class="line en" lang="en">So you, you don&#x27;t want to continue in this room.</p>
+  <p class="line zh" lang="zh-CN">所以你不想继续在这间房间里面了。</p>
+</article><article class="turn speaker-c" data-search="yeah. i was, i was super introvert before, but i wasn&#x27;t like very willing to talk. i was super introvert before, but once i get into the pricing analyst job, i find the interesting of like dealing with different departments. and i really, really enjoy like dealing with different team. it also like sometimes when we are keep working along is lonely a little bit, but when we are like collaborate with different teams, we also get the chance to talk with different people. yeah. 嗯。我以前特别内向，但不是很愿意说话。我以前特别内向，但是一旦进入定价分析师这个职位，我发现和不同部门打交道很有意思。我真的特别喜欢和不同团队打交道。有时候我们在一块儿工作会有点孤单，但是当我们和不同团队合作时，我们也有机会和不同的人交流。嗯。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1920.28" aria-label="跳转到 32:00">32:00</button></div>
+  <p class="line en" lang="en">Yeah. I was, I was super introvert before, but I wasn&#x27;t like very willing to talk. I was super introvert before, but once I get into the pricing analyst job, I find the interesting of like dealing with different departments. And I really, really enjoy like dealing with different team. It also like sometimes when we are keep working along is lonely a little bit, but when we are like collaborate with different teams, we also get the chance to talk with different people. Yeah.</p>
+  <p class="line zh" lang="zh-CN">嗯。我以前特别内向，但不是很愿意说话。我以前特别内向，但是一旦进入定价分析师这个职位，我发现和不同部门打交道很有意思。我真的特别喜欢和不同团队打交道。有时候我们在一块儿工作会有点孤单，但是当我们和不同团队合作时，我们也有机会和不同的人交流。嗯。</p>
+</article><article class="turn speaker-i" data-search="of course. 当然。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1951.06" aria-label="跳转到 32:31">32:31</button></div>
+  <p class="line en" lang="en">Of course.</p>
+  <p class="line zh" lang="zh-CN">当然。</p>
+</article><article class="turn speaker-c" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1951.72" aria-label="跳转到 32:31">32:31</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="and you know what? sometimes like a, your job will push you to do that. some people don&#x27;t enjoy that, but if you enjoy that, then it just makes it easier. right. better. 而且你知道吗？有时候像这样，你的工作会逼着你去做。有些人不喜欢这样，但如果你喜欢这样，那就更容易了。对，更好了。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1952.24" aria-label="跳转到 32:32">32:32</button></div>
+  <p class="line en" lang="en">And you know what? Sometimes like a, your job will push you to do that. Some people don&#x27;t enjoy that, but if you enjoy that, then it just makes it easier. Right. Better.</p>
+  <p class="line zh" lang="zh-CN">而且你知道吗？有时候像这样，你的工作会逼着你去做。有些人不喜欢这样，但如果你喜欢这样，那就更容易了。对，更好了。</p>
+</article><article class="turn speaker-c" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1961.76" aria-label="跳转到 32:41">32:41</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="nice. awesome. uh, do you have any other questions for me? 不错。太棒了。呃，你还有其他问题要问我吗？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1962.56" aria-label="跳转到 32:42">32:42</button></div>
+  <p class="line en" lang="en">Nice. Awesome. Uh, do you have any other questions for me?</p>
+  <p class="line zh" lang="zh-CN">不错。太棒了。呃，你还有其他问题要问我吗？</p>
+</article><article class="turn speaker-c" data-search="no, that would be all. 不，就这些了。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1966.58" aria-label="跳转到 32:46">32:46</button></div>
+  <p class="line en" lang="en">No, that would be all.</p>
+  <p class="line zh" lang="zh-CN">不，就这些了。</p>
+</article><article class="turn speaker-i" data-search="awesome. so, um, in terms of the next steps, like i&#x27;m, i have a few more interviews this week lined up. um, so hopefully by the end of the week, i&#x27;ll make a decision on like who we want to kind of go ahead with. there will be, um, a second round interview with myself and the director of pricing, and then we&#x27;ll make the final decision basically. 太棒了。所以，嗯，关于下一步，我这周还有一些面试安排。希望到周末的时候，我可以决定谁是我们想要继续合作的人。然后我会和定价总监进行第二轮面试，然后我们做出最终决定。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1968.32" aria-label="跳转到 32:48">32:48</button></div>
+  <p class="line en" lang="en">Awesome. So, um, in terms of the next steps, like I&#x27;m, I have a few more interviews this week lined up. Um, so hopefully by the end of the week, I&#x27;ll make a decision on like who we want to kind of go ahead with. There will be, um, a second round interview with myself and the director of pricing, and then we&#x27;ll make the final decision basically.</p>
+  <p class="line zh" lang="zh-CN">太棒了。所以，嗯，关于下一步，我这周还有一些面试安排。希望到周末的时候，我可以决定谁是我们想要继续合作的人。然后我会和定价总监进行第二轮面试，然后我们做出最终决定。</p>
+</article><article class="turn speaker-c" data-search="okay. okay. 好的。好的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1989.32" aria-label="跳转到 33:09">33:09</button></div>
+  <p class="line en" lang="en">Okay. Okay.</p>
+  <p class="line zh" lang="zh-CN">好的。好的。</p>
+</article><article class="turn speaker-i" data-search="so there&#x27;s one round left. 还剩下一轮。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1989.82" aria-label="跳转到 33:09">33:09</button></div>
+  <p class="line en" lang="en">So there&#x27;s one round left.</p>
+  <p class="line zh" lang="zh-CN">还剩下一轮。</p>
+</article><article class="turn speaker-c" data-search="yeah. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="1992.14" aria-label="跳转到 33:12">33:12</button></div>
+  <p class="line en" lang="en">Yeah.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="okay. yeah. so, um, that&#x27;s that, but yeah, i do want somebody starting before march, if possible. uh, yours was two to three weeks. you have to get them noticed, right? 好的。是的。所以，但是，我确实希望能在三月前找到合适的人。你的大概需要两到三周。你得让他们被注意到，对吧？">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="1992.82" aria-label="跳转到 33:12">33:12</button></div>
+  <p class="line en" lang="en">Okay. Yeah. So, um, that&#x27;s that, but yeah, I do want somebody starting before March, if possible. Uh, yours was two to three weeks. You have to get them noticed, right?</p>
+  <p class="line zh" lang="zh-CN">好的。是的。所以，但是，我确实希望能在三月前找到合适的人。你的大概需要两到三周。你得让他们被注意到，对吧？</p>
+</article><article class="turn speaker-c" data-search="yes. 是的。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="2002.16" aria-label="跳转到 33:22">33:22</button></div>
+  <p class="line en" lang="en">Yes.</p>
+  <p class="line zh" lang="zh-CN">是的。</p>
+</article><article class="turn speaker-i" data-search="awesome. 太好了。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="2003.52" aria-label="跳转到 33:23">33:23</button></div>
+  <p class="line en" lang="en">Awesome.</p>
+  <p class="line zh" lang="zh-CN">太好了。</p>
+</article><article class="turn speaker-c" data-search="thank you so much. that would be great. 谢谢。那太好了。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="2004.82" aria-label="跳转到 33:24">33:24</button></div>
+  <p class="line en" lang="en">Thank you so much. That would be great.</p>
+  <p class="line zh" lang="zh-CN">谢谢。那太好了。</p>
+</article><article class="turn speaker-i" data-search="if there&#x27;s no questions, yeah, it was lovely chatting with you. 如果没有问题，好的，很高兴与您聊天。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="2005.84" aria-label="跳转到 33:25">33:25</button></div>
+  <p class="line en" lang="en">If there&#x27;s no questions, yeah, it was lovely chatting with you.</p>
+  <p class="line zh" lang="zh-CN">如果没有问题，好的，很高兴与您聊天。</p>
+</article><article class="turn speaker-c" data-search="it&#x27;s nice to meet you. 很高兴见到你。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="2008.86" aria-label="跳转到 33:28">33:28</button></div>
+  <p class="line en" lang="en">It&#x27;s nice to meet you.</p>
+  <p class="line zh" lang="zh-CN">很高兴见到你。</p>
+</article><article class="turn speaker-i" data-search="have a nice day, rehima. 瑞米亚，祝你有个好日子。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="2010.68" aria-label="跳转到 33:30">33:30</button></div>
+  <p class="line en" lang="en">Have a nice day, Rehima.</p>
+  <p class="line zh" lang="zh-CN">瑞米亚，祝你有个好日子。</p>
+</article><article class="turn speaker-c" data-search="bye. 再见。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="2012.42" aria-label="跳转到 33:32">33:32</button></div>
+  <p class="line en" lang="en">Bye.</p>
+  <p class="line zh" lang="zh-CN">再见。</p>
+</article><article class="turn speaker-i" data-search="bye. 再见。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="2013.24" aria-label="跳转到 33:33">33:33</button></div>
+  <p class="line en" lang="en">Bye.</p>
+  <p class="line zh" lang="zh-CN">再见。</p>
+</article><article class="turn speaker-c" data-search="bye. 再见。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="2014.20" aria-label="跳转到 33:34">33:34</button></div>
+  <p class="line en" lang="en">Bye.</p>
+  <p class="line zh" lang="zh-CN">再见。</p>
+</article><article class="turn speaker-i" data-search="bye. 再见。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="2014.58" aria-label="跳转到 33:34">33:34</button></div>
+  <p class="line en" lang="en">Bye.</p>
+  <p class="line zh" lang="zh-CN">再见。</p>
+</article><article class="turn speaker-c" data-search="bye. 再见。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>候选人<small>Candidate</small></span>
+    <button class="time" type="button" data-seek="2016.30" aria-label="跳转到 33:36">33:36</button></div>
+  <p class="line en" lang="en">Bye.</p>
+  <p class="line zh" lang="zh-CN">再见。</p>
+</article><article class="turn speaker-i" data-search="bye. 再见。">
+  <div class="turn-meta"><span class="role"><span class="dot"></span>面试官<small>Interviewer</small></span>
+    <button class="time" type="button" data-seek="2018.60" aria-label="跳转到 33:38">33:38</button></div>
+  <p class="line en" lang="en">Bye.</p>
+  <p class="line zh" lang="zh-CN">再见。</p>
+</article></section><div id="empty" class="empty">没有匹配的内容。</div>
+</main>
+<script>
+const audio=document.getElementById('audio');document.querySelectorAll('.time').forEach(b=>b.addEventListener('click',()=>{audio.currentTime=Number(b.dataset.seek);audio.play();}));
+document.querySelectorAll('.toggle').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.toggle').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.body.classList.remove('mode-en','mode-zh');if(b.dataset.mode!=='both')document.body.classList.add('mode-'+b.dataset.mode);}));
+const search=document.getElementById('search'),turns=[...document.querySelectorAll('.turn')],empty=document.getElementById('empty');search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();let shown=0;turns.forEach(t=>{const ok=!q||t.dataset.search.includes(q);t.classList.toggle('hidden',!ok);if(ok)shown++;});empty.classList.toggle('show',shown===0);});
+</script>
+</body></html>

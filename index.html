@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="面试录音的中英双语转写资料库">
+  <title>Interview Records｜双语面试记录</title>
+  <style>
+    :root {
+      --ink: #17211d;
+      --muted: #66716c;
+      --paper: #f6f3ec;
+      --card: #fffefa;
+      --line: #dfe2dc;
+      --green: #1d6d5b;
+      --green-dark: #173e35;
+      --orange: #b36d35;
+      --shadow: 0 16px 40px rgba(29, 42, 36, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.6;
+    }
+    .hero {
+      padding: 68px 24px 48px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--green-dark), #225f50 62%, var(--orange));
+    }
+    .hero-inner, main { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+    .eyebrow { font-size: 12px; letter-spacing: .17em; text-transform: uppercase; opacity: .72; }
+    h1 { margin: 10px 0 12px; font: 500 clamp(36px, 6vw, 64px)/1.06 Georgia, "Songti SC", serif; }
+    .subtitle { max-width: 720px; margin: 0; font-size: 17px; opacity: .84; }
+    main { padding: 32px 0 72px; }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat, .controls, .add-flow {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+    .stat { padding: 17px 18px; }
+    .stat strong { display: block; font-size: 25px; font-family: Georgia, serif; }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .controls { display: grid; grid-template-columns: minmax(240px, 1fr) 190px 160px; gap: 10px; padding: 14px; }
+    input, select {
+      width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px;
+      color: var(--ink); background: #fff; font: inherit;
+    }
+    .results { margin: 25px 2px 12px; color: var(--muted); font-size: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      position: relative; display: flex; min-height: 255px; flex-direction: column; padding: 24px;
+      overflow: hidden; color: inherit; text-decoration: none; background: var(--card);
+      border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 8px 24px rgba(29, 42, 36, .05);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .card::before { content: ""; position: absolute; inset: 0 0 auto; height: 5px; background: var(--green); }
+    .card:nth-child(even)::before { background: var(--orange); }
+    .card:hover { transform: translateY(-3px); border-color: #bcc8c2; box-shadow: var(--shadow); }
+    .meta { display: flex; gap: 7px; flex-wrap: wrap; }
+    .pill { padding: 4px 8px; color: var(--green); background: #e5f1ed; border-radius: 999px; font-size: 12px; }
+    .card h2 { margin: 22px 0 8px; font: 500 27px/1.15 Georgia, "Songti SC", serif; }
+    .card p { margin: 0; color: var(--muted); }
+    .tags { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 17px; }
+    .tag { color: #65706b; font-size: 12px; }
+    .open { margin-top: auto; padding-top: 20px; color: var(--green); font-weight: 700; font-size: 14px; }
+    .add-flow { margin-top: 24px; padding: 20px 22px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .add-flow h2 { margin: 0 0 3px; font-size: 17px; }
+    .add-flow p { margin: 0; color: var(--muted); font-size: 14px; }
+    .add-flow a { flex: 0 0 auto; color: #fff; background: var(--ink); padding: 9px 13px; border-radius: 9px; text-decoration: none; font-size: 13px; }
+    .empty { display: none; padding: 50px 0; text-align: center; color: var(--muted); }
+    .empty.show { display: block; }
+    footer { padding: 30px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+    @media (max-width: 720px) {
+      .hero { padding-top: 48px; }
+      .stats, .grid { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr; }
+      .add-flow { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Interview archive</div>
+      <h1>双语面试记录</h1>
+      <p class="subtitle">浏览录音、英文转写和中文翻译。每份记录均支持时间跳转、全文搜索和中英文显示切换。</p>
+    </div>
+  </header>
+  <main>
+    <section class="stats" aria-label="资料库统计">
+      <div class="stat"><strong id="total-count">0</strong><span>全部项目</span></div>
+      <div class="stat"><strong id="page-count">0</strong><span>网页记录</span></div>
+      <div class="stat"><strong id="topic-count">0</strong><span>主题分类</span></div>
+    </section>
+    <section class="controls" aria-label="筛选资料库">
+      <input id="search" type="search" placeholder="搜索公司、职位或标签…" aria-label="搜索资料">
+      <select id="area-filter" aria-label="按主题筛选"><option value="">全部主题</option></select>
+      <select id="kind-filter" aria-label="按格式筛选"><option value="">全部格式</option></select>
+    </section>
+    <div id="results" class="results" aria-live="polite"></div>
+    <section id="library" class="grid" aria-label="面试记录"></section>
+    <div id="empty" class="empty">没有匹配的记录。</div>
+    <aside class="add-flow">
+      <div><h2>添加新的面试记录</h2><p>按统一目录和 catalog 配置扩展网站，无需修改首页卡片代码。</p></div>
+      <a href="docs/add-new-item.html">查看添加流程</a>
+    </aside>
+  </main>
+  <footer>Interview Records · Static GitHub Pages library</footer>
+  <script src="content/catalog.js"></script>
+  <script>
+    const items = window.SITE_LIBRARY_ITEMS || [];
+    const library = document.getElementById('library');
+    const search = document.getElementById('search');
+    const areaFilter = document.getElementById('area-filter');
+    const kindFilter = document.getElementById('kind-filter');
+    const results = document.getElementById('results');
+    const empty = document.getElementById('empty');
+
+    const unique = key => [...new Set(items.map(item => item[key]))].filter(Boolean).sort();
+    const label = value => ({ interview: '面试', page: '网页' }[value] || value);
+    unique('area').forEach(value => areaFilter.add(new Option(label(value), value)));
+    unique('kind').forEach(value => kindFilter.add(new Option(label(value), value)));
+    document.getElementById('total-count').textContent = items.length;
+    document.getElementById('page-count').textContent = items.filter(item => item.kind === 'page').length;
+    document.getElementById('topic-count').textContent = unique('area').length;
+
+    function render() {
+      const query = search.value.trim().toLowerCase();
+      const area = areaFilter.value;
+      const kind = kindFilter.value;
+      const filtered = items.filter(item => {
+        const haystack = [item.title, item.summary, item.area, item.kind, item.status, ...(item.tags || [])].join(' ').toLowerCase();
+        return (!query || haystack.includes(query)) && (!area || item.area === area) && (!kind || item.kind === kind);
+      });
+      library.innerHTML = filtered.map(item => `
+        <a class="card" href="${item.href}">
+          <div class="meta"><span class="pill">${label(item.area)}</span><span class="pill">${label(item.kind)}</span></div>
+          <h2>${item.title}</h2><p>${item.summary}</p>
+          <div class="tags">${(item.tags || []).map(tag => `<span class="tag"># ${tag}</span>`).join('')}</div>
+          <div class="open">打开双语记录 →</div>
+        </a>`).join('');
+      results.textContent = `显示 ${filtered.length} / ${items.length} 项`;
+      empty.classList.toggle('show', filtered.length === 0);
+    }
+    [search, areaFilter, kindFilter].forEach(control => control.addEventListener('input', render));
+    render();
+  </script>
+</body>
+</html>

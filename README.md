@@ -1,44 +1,25 @@
-# codex-demo
+# Interview Records
 
-## Testing the R Markdown notebooks
+一个无需构建步骤的静态 GitHub Pages 资料库，包含面试录音、英文转写和中文翻译。
 
-To render `PPO_playground.Rmd` (or any other R Markdown file) during automated testing you need an R runtime that provides the `Rscript` command.
+- [打开本地首页](./index.html)
+- [添加新内容流程](./docs/add-new-item.md)
 
-### Installing R inside this container
+## 结构
 
-The container image used here does not ship with R. If your environment allows outbound package downloads, you can install it with:
+- `index.html`：可搜索、筛选的资料库首页
+- `content/catalog.js`：首页卡片的单一数据源
+- `docs/`：维护说明
+- `items/`：未来按主题添加的内容
+- `assets/`：共享资源
+- 根目录双语 HTML：已发布的稳定页面 URL
 
-```bash
-sudo apt-get update
-sudo apt-get install -y r-base
+## 本地预览
+
+```sh
+python3 -m http.server 8000
 ```
 
-Once R is installed, verify that `Rscript` is on the `PATH`:
+然后打开 `http://127.0.0.1:8000/`。
 
-```bash
-Rscript --version
-```
-
-After that you can render the notebook, for example:
-
-```bash
-Rscript -e "rmarkdown::render('PPO_playground.Rmd')"
-```
-
-> **Note:** In the hosted environment used for these examples, the default proxy blocks `apt-get` traffic (returns HTTP 403). If you encounter the same issue, either switch to a network that allows access to Ubuntu mirrors, configure an internal mirror, or install R locally on your machine and run the render command there instead.
-
-### Alternative: Conda/Mamba
-
-If `apt-get` is unavailable, you can also create a Conda environment with R:
-
-```bash
-mamba create -n r-env r-base r-essentials
-mamba activate r-env
-Rscript --version
-```
-
-(Replace `mamba` with `conda` if you do not have Mamba installed.)
-
-After activating the environment, run the same render command shown above.
-
-These steps give you a repeatable way to ensure `Rscript` is available so automated tests can call the notebook render.
+> 隐私：GitHub Pages 内容可能公开访问。发布前必须确认录音和转写获准公开。
